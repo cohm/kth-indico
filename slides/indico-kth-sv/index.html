@@ -23,6 +23,7 @@
     .reveal img.shot { display: block; max-width: 100%; max-height: 540px; margin: 0 auto;
                        border: 1px solid #d0d0d0; border-radius: 6px;
                        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12); }
+    .reveal img.shot.big { max-height: 680px; }
     .reveal .shot-cap { font-size: 0.6em; color: var(--kth-gray-dark); text-align: center; margin-top: 0.4em; }
 
     /* Status labels: live / planned / under investigation / to do */
@@ -308,13 +309,17 @@
             <li>Indico registreras som tjänst (SP) i <span class="kthhl">SWAMID</span>, och via <span class="kthhl">eduGAIN</span> internationellt</li>
             <li>KTH-konto — och <span class="kthhl">externa deltagare</span> loggar in med sitt eget lärosäte</li>
             <li>Attribut enligt entitetskategorin <span class="kthhl">REFEDS Research &amp; Scholarship</span>: ID, namn, e-post</li>
-            <li>Samma upplägg som <a href="https://indico.fysik.su.se">SU:s fysikum</a></li>
+            <li>Federerad inloggning kopplas till ett befintligt konto</li>
           </ul>
         </div>
         <div>
+          <p>En registrering, <span class="kthhl">tre knappar</span> — som på <a href="https://indico.fysik.su.se/login/">SU:s fysikum</a>:</p>
+          <ol>
+            <li><strong>KTH</strong> — direkt till KTH:s inloggning</li>
+            <li><strong>Andra lärosäten</strong> — välj lärosäte (SeamlessAccess)</li>
+            <li><strong>Indico-konto</strong> — för den som saknar federerad inloggning</li>
+          </ol>
           <ul>
-            <li><span class="kthhl">Lokala konton</span> finns kvar för den som inte har en federerad inloggning</li>
-            <li>Federerad inloggning kopplas till ett befintligt konto</li>
             <li>Teknik: SAML direkt i Indico (Flask-Multipass) eller Shibboleth SP <span class="st st-inv">utvärderas</span></li>
           </ul>
           <div class="notebox" style="margin-top: 0.4em;">
@@ -345,7 +350,8 @@
           <h3>Vad vi vet hittills</h3>
           <ul>
             <li>Enhetsträdet finns i KTH:s katalog (webb och katalog-API); anställning per enhet verkar finnas i <span class="kthhl">UG</span> (KTH:s AD/LDAP) — <em>bekräftas med KTH IT</em></li>
-            <li>Inloggning via SWAMID (R&amp;S) ger namn, e-post och anställd/student — <span class="kthhl">inte avdelning</span></li>
+            <li>Inloggningen ger ett <span class="kthhl">ID</span>, namn och e-post; avdelning och grupper hämtas från <span class="kthhl">UG</span> med det ID:t</li>
+            <li>Indicos SAML-inloggning kan inte leverera grupper — de kommer alltid från en katalog</li>
             <li>Två vägar: Indico läser grupper <span class="kthhl">direkt ur UG</span> (LDAP, stöds av Indico), eller ett <span class="kthhl">synkjobb</span> till Indicos egna grupper</li>
           </ul>
         </div>
@@ -397,13 +403,14 @@
       <p class="section-name">Pilot · Utseende</p>
       <h1>Så ser piloten ut</h1>
 
-      <div class="cols-2">
-        <div>
-          <img class="shot" src="../img/indico-kategorier.png" alt="Kategoriträd i piloten">
+      <!-- One screenshot at a time, full width: the second fades in over the first. -->
+      <div class="r-stack">
+        <div class="fragment fade-out" data-fragment-index="1">
+          <img class="shot big" src="../img/indico-kategorier.png" alt="Kategoriträd i piloten">
           <p class="shot-cap">KTH-profil: skola → institution → avdelning. Skölden markerar en <strong>skyddad</strong> kategori.</p>
         </div>
-        <div>
-          <img class="shot" src="../img/indico-pam-lista.png" alt="En avdelnings mötesserie i piloten">
+        <div class="fragment fade-in" data-fragment-index="1">
+          <img class="shot big" src="../img/indico-pam-lista.png" alt="En avdelnings mötesserie i piloten">
           <p class="shot-cap">En avdelnings mötesserie, importerad från gruppwebben</p>
         </div>
       </div>
