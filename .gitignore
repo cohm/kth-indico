@@ -1,0 +1,16 @@
+# Personal data: attendee lists, Gruppwebben exports, reports derived from them
+*.csv
+*.json
+*.zip
+schema.txt
+probe.txt
+export/
+exports/
+# Backups and dumps
+*.dump
+*.vma*
+# macOS
+.DS_Store
+# Local agent settings: private paths live in the private ops repo
+/.claude/
+CLAUDE.local.md

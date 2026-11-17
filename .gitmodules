@@ -1,0 +1,3 @@
+[submodule "kth-doc-templates"]
+	path = kth-doc-templates
+	url = https://github.com/cohm/kth-doc-templates

@@ -1,0 +1,270 @@
+/* KTH / SCI branding for Indico 3.3 → /opt/indico/custom/css/00-kth.css
+ *
+ * Colours: kth-doc-templates/md-to-pdf.css (KTH visual identity).
+ * Font: Figtree (SIL OFL 1.1), as in the KTH templates. Self-hosted from
+ * /static/custom/files/ so visitors' browsers never contact Google Fonts.
+ *
+ * Selectors and default values come from Indico v3.3.14 source (indico/web/client/styles/):
+ *   .page-header            partials/_main.scss          background $dark-blue #007cac
+ *   #global-menu            partials/_main.scss          var(--surface-inverse-color) #555
+ *   .page-title             base/_typography_elements    $dark-orange #cb6d04
+ *   h1.category-title       categories/templates/display/base.html (orange on screen)
+ *   a:hover                 partials/_links.scss         $dark-orange #cb6d04
+ *   .i-button.highlight:not(.label):not(.borderless):not(.text-color)
+ *                           partials/_buttons.scss       $blue #09c / $dark-blue
+ *   body / h1 / h2-h4       base/_typography_elements    Liberation Sans 13px / Roboto (Light)
+ *   --accent-color etc.     design_system/variables.scss (runtime CSS variables on body)
+ * `html body …` outranks Indico's own rules regardless of include order.
+ * Re-check after every Indico upgrade: the docs warn customizations "may break after an update".
+ */
+
+@font-face {
+  font-family: 'Figtree';
+  src: url('/static/custom/files/figtree-latin-wght-normal.woff2') format('woff2');
+  font-weight: 300 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Indico sets fonts per element in many places (side menus, timetable titles, …) through its
+ * SCSS mixins: 'Liberation Sans' (body), 'Roboto' / 'Roboto Light' (titles), 'Muli' (Semantic UI).
+ * Rather than chase each selector, alias those family names to the Figtree file. For an identical
+ * family name the @font-face declared LAST wins, and this file loads after Indico's CSS.
+ * Icon fonts have their own family names and are unaffected. */
+@font-face {
+  font-family: 'Roboto';
+  src: url('/static/custom/files/figtree-latin-wght-normal.woff2') format('woff2');
+  font-weight: 300 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Roboto Light';
+  src: url('/static/custom/files/figtree-latin-wght-normal.woff2') format('woff2');
+  font-weight: 300 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Liberation Sans';
+  src: url('/static/custom/files/figtree-latin-wght-normal.woff2') format('woff2');
+  font-weight: 300 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Muli';
+  src: url('/static/custom/files/figtree-latin-wght-normal.woff2') format('woff2');
+  font-weight: 300 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+html body {
+  --accent-color: #004791;            /* KTH blue: links, highlights */
+  --accent-highlight-color: #000061;  /* KTH navy: hover/active */
+  --accent-border-color: #000061;
+  font-family: 'Figtree', 'Helvetica Neue', Arial, sans-serif;
+}
+
+html body h1,
+html body h2,
+html body h3,
+html body h4 {
+  font-family: 'Figtree', 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* Header bar: KTH blue, with the navy logo rendered white */
+html body .page-header {
+  background-color: #004791;
+}
+html body .page-header img.header-logo {
+  filter: brightness(0) invert(1);
+}
+
+/* Main menu: KTH navy, KTH blue on hover */
+html body #global-menu {
+  --surface-inverse-color: #000061;
+  --surface-highlight-inverse-color: #004791;
+}
+
+/* Page titles: navy instead of Indico orange. Category pages use
+ * <h1 class="category-title"> inside .category-container .category-header
+ * (categories/templates/display/base.html). Management pages use
+ * <h1 class="title"> in .content-column .banner (web/templates/layout/management_page.html;
+ * the orange rule itself wasn't found in the source, hence the specific selector).
+ * Other pages use .page-title. */
+html body .page-title,
+html body .category-container .category-header h1.category-title,
+html body .content-column .banner h1.title {
+  color: #000061;
+}
+/* Event management pages render their own header (#event-management-header-right, macro
+ * render_event_management_header_right); the event title there is a link that shows orange
+ * when not hovered. The source rule wasn't found; :not(.i-button) leaves the Clone/gear
+ * buttons alone. */
+html body #event-management-header-right a:not(.i-button) {
+  color: #000061;
+}
+
+/* Link hover: Indico turns every link $dark-orange on hover (partials/_links.scss:
+ * `a, .fake-link, .ui-widget-content a { &:hover { color: $dark-orange } }`). Use navy instead.
+ * Menu links and .i-button anchors have more specific colour rules of their own, so this
+ * doesn't touch them. */
+html body a:hover,
+html body .fake-link:hover,
+html body .ui-widget-content a:hover {
+  color: #000061;
+}
+
+/* Subcategory list (ul.category-list > li > a.name, categories/templates/display/
+ * category_list.html). In case the list has its own, more specific orange hover rule. */
+html body ul.category-list li:hover a.name,
+html body ul.category-list a.name:hover {
+  color: #000061;
+}
+
+/* Footer: the "Powered by Indico" logo (footer.html: footer.footer img.footer-logo) at about half
+ * its on-screen size. Keeping the attribution, just smaller. Tune the height if needed. */
+html body footer.footer img.footer-logo {
+  height: 18px;
+  width: auto;
+}
+
+/* ---- Event pages ---------------------------------------------------------------------------
+ * Class names come from the rendered HTML of /event/2 (meeting) and /event/3 (conference),
+ * 2026-10-31. The top strip on event pages is `.page-header.page-header-dark.event-page-header`,
+ * which the .page-header rule above already covers. */
+
+/* Meetings/lectures (themes_standard.css, from themes/indico.scss): the blue title box
+ * `div.event-header` ($header-bg-color #1a63a0) and the timetable accent ($tt-primary-color). */
+html body div.event-header {
+  background: #004791;
+}
+/* Inside that box, the date/time, location and chairpersons each get a slightly lighter
+ * "chip" (themes/indico.scss mixin highlighted-header-data: `background-color:
+ * lighten($header-bg-color, 5%)`, used by `.event-time-data time`, `.event-location .text`,
+ * `.chairperson-list .author`). Against KTH blue that reads as a stray lighter blue, so make
+ * the chips transparent. The text keeps its colour and padding. */
+html body div.event-header .event-time-data time,
+html body div.event-header .event-location .text,
+html body div.event-header .chairperson-list .author {
+  background-color: transparent;
+}
+/* Timetable (themes/indico.scss). $tt-primary-color #1a63a0 → KTH blue/navy,
+ * $tt-secondary-color #05b3b3 (breaks, locations) → KTH teal #339C9C. Several of Indico's
+ * rules use !important, so the matching overrides must too (same or higher specificity). */
+html body .timetable-time {
+  color: #004791 !important;
+}
+html body .timetable-time .end-time,
+html body .timetable-contrib .timetable-title,
+html body .timetable-item-body .timetable-item-header .timetable-title.nested {
+  color: #004791;
+}
+/* Start-time "ribbon": box + folded corner (::before, darkened 10% in Indico's mixin) */
+html body .timetable-time.top-level .start-time {
+  background-color: #000061;
+}
+html body .timetable-time.top-level .start-time::before {
+  border-color: #00002e #00002e transparent transparent;
+}
+/* Breaks */
+html body .timetable-time.break {
+  color: #339C9C !important;
+  border-color: #339C9C;
+}
+html body .timetable-time.break .end-time {
+  color: #339C9C !important;
+}
+html body .timetable-time.break.top-level .start-time,
+html body .timetable-time.break.nested .start-time {
+  background-color: #339C9C;
+}
+html body .timetable-time.break.top-level .start-time::before {
+  border-color: #287a7a #287a7a transparent transparent;
+}
+html body .timetable-item.timetable-break .timetable-item-body .timetable-title,
+html body .timetable-item.timetable-break .timetable-item-body .timetable-duration,
+html body .timetable-item.timetable-break .timetable-item-body .timetable-duration::before {
+  color: #339C9C !important;
+}
+html body .item-location,
+html body .item-location::before {
+  color: #339C9C;
+}
+/* Category name above a lecture title ($tt-secondary-pastel #a8dede) */
+html body .event-header-lecture .lecture-category {
+  color: #DEF0FF;
+}
+
+/* Meeting/lecture page background: KTH sand instead of Indico's dark #424242
+ * (themes_standard.css sets `body { background: #424242 }`). Scoped with :has() to pages that
+ * contain the meeting/lecture title box, so the rest of the site keeps its white background.
+ * Those pages use the dark footer (`footer.footer.dark`: light text, white logo), so the
+ * footer gets dark text and a dark logo here too. */
+html body:has(div.event-header) {
+  background: #EBE5E0;   /* KTH sand */
+}
+html body:has(div.event-header) footer.footer.dark {
+  background: transparent;
+  color: #212121;
+}
+html body:has(div.event-header) footer.footer.dark span {
+  color: #555;   /* "Powered by": its own light grey is too faint on sand */
+}
+html body:has(div.event-header) footer.footer.dark a {
+  color: #004791;
+}
+html body:has(div.event-header) footer.footer.dark img.footer-logo {
+  filter: brightness(0) opacity(0.6);
+}
+/* Day headings in multi-day meetings sit directly on the page background. Indico draws them
+ * light grey for its dark theme (themes/indico.scss: `.day-header .day-title { color:
+ * $light-gray }`, small caps), which is unreadable on sand. Navy, like the other titles. The
+ * "go to day" calendar icon next to it (`.day-header a.js-go-to-day`, $gray) gets KTH blue.
+ * Found 2026-11-16 on a two-day test meeting. Other text drawn straight on the background may
+ * have the same problem. */
+html body:has(div.event-header) .day-header .day-title {
+  color: #000061;
+}
+html body:has(div.event-header) .day-header a.js-go-to-day {
+  color: #004791;
+}
+
+/* Conferences (conferences.css): .confheader > .confTitleBox > .confTitle >
+ * .conference-title-link, plus .confSubTitleBox for the date/search strip.
+ * These elements carry `style=""` when the event's Manage → Layout → Header Style is unset,
+ * and an inline colour when it is set. Inline styles beat this file, so the rules below are
+ * only the DEFAULT, and an organiser's own choice still wins. */
+html body .confTitleBox {
+  background-color: #004791;
+}
+html body .confTitleBox .conference-title-link,
+html body .confTitleBox .confTitle {
+  color: #fff;
+}
+html body .confSubTitleBox {
+  background-color: #DEF0FF;   /* KTH light blue */
+}
+html body .conf_leftMenu li.menuConfSelected {
+  background-color: #DEF0FF;
+}
+
+/* Primary buttons ("Create event" etc.). Indico's rule comes from the i-button-states mixin as
+ * `.i-button.highlight:not(.label):not(.borderless):not(.text-color)`. Each :not() adds to the
+ * specificity, so ours has to repeat the chain to win (v2 used plain `.i-button.highlight`
+ * and lost). The hover/active states use a gradient, which the `background` shorthand overrides.
+ * Disabled buttons keep Indico's !important grey on purpose. */
+html body .i-button.highlight:not(.label):not(.borderless):not(.text-color) {
+  background: #004791;
+  border-color: #000061;
+  color: #fff;
+}
+html body .i-button.highlight:not(.label):not(.borderless):not(.text-color):hover,
+html body .i-button.highlight:not(.label):not(.borderless):not(.text-color):active,
+html body .i-button.highlight:not(.label):not(.borderless):not(.text-color).open {
+  background: #000061;
+  border-color: #000061;
+  color: #fff;
+}

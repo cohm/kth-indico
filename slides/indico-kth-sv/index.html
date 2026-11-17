@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Indico på KTH — design och integration</title>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.2.1/dist/reset.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.2.1/dist/reveal.css">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap">
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+
+  <!-- KTH theme from the kth-doc-templates submodule. The logo is a symlink in this folder. -->
+  <link rel="stylesheet" href="../../kth-doc-templates/reveal/kth-reveal.css">
+  <style>
+    /* Screenshots (../img/, cropped to the page, browser frame removed) */
+    .reveal img.shot { display: block; max-width: 100%; max-height: 540px; margin: 0 auto;
+                       border: 1px solid #d0d0d0; border-radius: 6px;
+                       box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12); }
+    .reveal .shot-cap { font-size: 0.6em; color: var(--kth-gray-dark); text-align: center; margin-top: 0.4em; }
+
+    /* Status labels: live / planned / under investigation / to do */
+    .reveal .st { display: inline-block; padding: 0.05em 0.55em; border-radius: 0.8em;
+                  font-size: 0.7em; font-weight: 600; white-space: nowrap; vertical-align: middle; }
+    .reveal .st-live { background: var(--kth-green-light); color: var(--kth-green-dark); }
+    .reveal .st-plan { background: var(--kth-lightblue);   color: var(--kth-navy); }
+    .reveal .st-inv  { background: var(--kth-yellow-light); color: var(--kth-yellow-dark); }
+    .reveal .st-todo { background: var(--kth-sand);        color: var(--kth-brokenblack); }
+
+    /* Architecture diagram: three columns of boxes */
+    .reveal .arch { display: grid; grid-template-columns: 1fr 1.4fr 1fr; gap: 1.2em;
+                    align-items: stretch; font-size: 0.85em; margin-top: 0.4em; }
+    .reveal .statusline { font-size: 0.75em; margin: -0.2em 0 0.5em; color: var(--kth-gray-dark); }
+    .reveal .arch .col { display: flex; flex-direction: column; gap: 0.5em; }
+    .reveal .arch .col > h4 { margin: 0 0 0.1em; font-size: 0.85em; color: var(--kth-gray-dark);
+                              text-transform: uppercase; letter-spacing: 0.06em; }
+    .reveal .arch .box { border: 2px solid var(--kth-blue); border-radius: 8px; padding: 0.4em 0.6em;
+                         background: var(--kth-white); }
+    .reveal .arch .box.core { background: var(--kth-lightblue); }
+    .reveal .arch .box.ext  { border-style: dashed; }
+    .reveal .arch .box b { display: block; color: var(--kth-navy); }
+    .reveal .arch .box small { color: var(--kth-gray-dark); }
+  </style>
+</head>
+<body>
+
+<div class="reveal"
+     data-kth-author="Christian Ohm"
+     data-kth-institute="School of Engineering Sciences (SCI), KTH"
+     data-kth-affiliation-short="SCI">
+
+  <div class="slides">
+
+    <!-- ==================================================================
+         1. Cover
+         ================================================================== -->
+    <section data-state="cover" data-transition="fade"
+             data-pattern="tl, bl mirror-x" data-pattern-color="skyblue">
+      <p class="doctype">Översikt · design och integration</p>
+      <h1>Indico på KTH</h1>
+      <p class="subtitle">Ett mötes- och agendasystem — hur tjänsten är tänkt<br>att fungera och kopplas till KTH:s system</p>
+      <p class="meta">
+        <strong>Christian Ohm</strong>
+        School of Engineering Sciences (SCI), KTH
+      </p>
+    </section>
+
+    <!-- ==================================================================
+         2. Bakgrund
+         ================================================================== -->
+    <section>
+      <p class="section-name">Bakgrund</p>
+      <h1>Allt om ett möte — på ett ställe</h1>
+
+      <div class="cols-2">
+        <div>
+          <p>Ett mötesagendasystem samlar:</p>
+          <ul>
+            <li><span class="kthhl">Agenda</span> med tider och punkter</li>
+            <li><span class="kthhl">Mötesanteckningar</span> / protokoll</li>
+            <li><span class="kthhl">Bilagor</span> per agendapunkt</li>
+            <li>Kalenderintegration och länk till videomötet</li>
+          </ul>
+        </div>
+        <div>
+          <ul>
+            <li>Gruppwebben, som många använt för detta, <span class="kthhl">stängs 31&nbsp;december 2026</span></li>
+            <li>Utan ett gemensamt verktyg: mailade bilagor, spridda mappar, agenda och material på olika ställen</li>
+          </ul>
+          <div class="kthbox" style="margin-top: 0.4em;">
+            En länk delar <strong>hela mötet</strong> — agenda, material och uppkoppling.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================================================================
+         3. Divider — Indico
+         ================================================================== -->
+    <section data-state="divider" data-transition="convex"
+             data-pattern="full" data-pattern-color="skyblue">
+      <p class="eyebrow">Del 1 av 3</p>
+      <h2>Indico</h2>
+      <p class="lead">Open source, byggt för möten, i bruk sedan många år.</p>
+    </section>
+
+    <!-- ==================================================================
+         4. Vad är Indico — och vilka använder det (sammanslagen)
+         ================================================================== -->
+    <section>
+      <p class="section-name">Indico · Översikt</p>
+      <h1>Vad är Indico?</h1>
+
+      <div class="cols-2">
+        <div>
+          <ul>
+            <li><span class="kthhl">Open source</span> (MIT-licens), utvecklat på <span class="kthhl">CERN</span></li>
+            <li>Byggt för <span class="kthhl">möten, seminarier, workshops &amp; konferenser</span></li>
+            <li>Hela livscykeln — från agenda till material — och ett permanent <span class="kthhl">arkiv</span></li>
+          </ul>
+        </div>
+        <div>
+          <div class="kthbox">
+            I bruk vid svenska lärosäten:
+            <a href="https://indico.uu.se/">Uppsala universitet</a>,
+            <a href="https://indico.fysik.su.se/">Stockholms universitet</a>,
+            <a href="https://indico.chalmers.se/">Chalmers</a>.
+          </div>
+          <p style="font-size: 0.75em; margin-top: 0.6em;">
+            <a href="https://getindico.io">getindico.io</a> ·
+            <a href="https://learn.getindico.io/">användarguide</a> ·
+            <a href="https://docs.getindico.io/en/stable/">teknisk dok.</a> ·
+            <a href="https://github.com/indico/indico">källkod</a> ·
+            <a href="https://sandbox.getindico.io">sandlåda</a>
+          </p>
+        </div>
+      </div>
+
+      <div class="stats-stage" style="margin-top: 0.4em;">
+        <div class="stat-row">
+          <div class="big-stat" style="color: var(--kth-blue);">1&thinsp;000&thinsp;000+</div>
+          <div class="big-stat-label">event på CERN (<a href="https://indico.cern.ch">indico.cern.ch</a>)</div>
+        </div>
+        <div class="stat-row">
+          <div class="big-stat" style="color: var(--kth-teal);">180&thinsp;000+</div>
+          <div class="big-stat-label">deltagare hos FN (sedan 2016)</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================================================================
+         5. Funktioner för möten
+         ================================================================== -->
+    <section>
+      <p class="section-name">Indico · Funktioner</p>
+      <h1>Funktioner för möten</h1>
+
+      <div class="cols-2">
+        <div>
+          <ul>
+            <li><a href="https://learn.getindico.io/meetings/timetable/">Agenda / timetable</a> med tider &amp; punkter</li>
+            <li><a href="https://learn.getindico.io/meetings/minutes/">Mötesanteckningar</a> direkt på mötet</li>
+            <li><a href="https://learn.getindico.io/meetings/material/">Bilagor &amp; material</a> per agendapunkt</li>
+          </ul>
+        </div>
+        <div>
+          <ul>
+            <li><a href="https://learn.getindico.io/document_templates/generating/">Automatisk PDF-konvertering</a> av uppladdade filer</li>
+            <li><a href="https://learn.getindico.io/plugins/zoom/">Zoom-integration</a> — anslut med ett klick</li>
+            <li>Video-conf är <span class="kthhl">pluggbart</span> → Teams möjligt framåt</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3 class="fragment fade-in" style="margin-top: 0.5em;">Och mer</h3>
+      <div class="cols-2 fragment fade-in">
+        <div>
+          <ul>
+            <li><a href="https://learn.getindico.io/room_booking/about/">Rumsbokning</a> med godkännande &amp; AV-utrustning</li>
+            <li><a href="https://learn.getindico.io/categories/protection/">Roller &amp; finkornig behörighet</a> per kategori/event</li>
+            <li><a href="https://learn.getindico.io/conferences/registration/">Registrering &amp; deltagarbadges</a></li>
+          </ul>
+        </div>
+        <div>
+          <ul>
+            <li><a href="https://learn.getindico.io/lectures/about/">Föreläsningar</a> och
+                <a href="https://learn.getindico.io/conferences/about/">konferenser</a> — samma verktyg</li>
+            <li>Sök över <span class="kthhl">alla event på hela KTH</span> (som du har behörighet att se)</li>
+            <li>Permanent <span class="kthhl">arkiv</span> av material &amp; metadata</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================================================================
+         6. Vi äger datan
+         ================================================================== -->
+    <section>
+      <p class="section-name">Indico · Varför open source</p>
+      <h1>KTH äger datan</h1>
+
+      <div class="cols-2">
+        <div>
+          <ul>
+            <li>Egen drift → datan <span class="kthhl">stannar hos KTH</span></li>
+            <li><span class="kthhl">Import &amp; export</span> — ingen inlåsning</li>
+            <li>Väldokumenterat <a href="https://docs.getindico.io/en/stable/http-api/">HTTP-API</a></li>
+            <li>Egen funktionalitet som <a href="https://docs.getindico.io/en/stable/plugins/">plugins</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="kthbox">
+            <strong>Oberoende:</strong> ingen leverantörsinlåsning.<br>
+            <strong>Transparens:</strong> källkoden är granskningsbar.<br>
+            <strong>Hållbarhet:</strong> vi anpassar och bevarar datan långsiktigt.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================================================================
+         7. Divider — Design
+         ================================================================== -->
+    <section data-state="divider" data-transition="convex"
+             data-pattern="full" data-pattern-color="skyblue">
+      <p class="eyebrow">Del 2 av 3</p>
+      <h2>Design och integration</h2>
+      <p class="lead">Hur tjänsten byggs och kopplas till KTH:s system.</p>
+    </section>
+
+    <!-- ==================================================================
+         8. Arkitektur — översikt
+         ================================================================== -->
+    <section>
+      <p class="section-name">Design · Översikt</p>
+      <h1>Tjänsten i ett diagram</h1>
+
+      <div class="arch">
+        <div class="col">
+          <h4>Användare</h4>
+          <div class="box"><b>KTH-anställda &amp; studenter</b><small>KTH-konto via SWAMID</small></div>
+          <div class="box"><b>Externa deltagare &amp; talare</b><small>eget lärosäte via SWAMID/eduGAIN, annars lokalt konto</small></div>
+          <div class="box"><b>Allmänheten</b><small>publika agendor, utan inloggning</small></div>
+        </div>
+        <div class="col">
+          <h4>Indico-servern</h4>
+          <div class="box core"><b>nginx → uWSGI → Indico</b><small>webben, HTTPS</small></div>
+          <div class="box core"><b>PostgreSQL · Redis · Celery</b><small>databas, cache, bakgrundsjobb (mejl, påminnelser)</small></div>
+          <div class="box core"><b>Filarkiv</b><small>bilagor och material</small></div>
+          <div class="box core"><b>KTH-profil</b><small>CSS, logotyp, typsnitt</small></div>
+        </div>
+        <div class="col">
+          <h4>KTH:s system</h4>
+          <div class="box ext"><b>Inloggning</b><small>KTH:s IdP i SWAMID</small> <span class="st st-plan">planerad</span></div>
+          <div class="box ext"><b>Organisation &amp; grupper</b><small>skola → institution → avdelning</small> <span class="st st-inv">utreds</span></div>
+          <div class="box ext"><b>E-post</b><small>KTH:s SMTP-relä</small> <span class="st st-plan">planerad</span></div>
+          <div class="box ext"><b>Säkerhetskopior</b><small>nattliga, krypterade</small> <span class="st st-live">i drift</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================================================================
+         9. Driftmiljö
+         ================================================================== -->
+    <section>
+      <p class="section-name">Design · Drift</p>
+      <h1>Driftmiljö</h1>
+
+      <div class="cols-2">
+        <div>
+          <h3>Stacken</h3>
+          <ul>
+            <li>Indicos <a href="https://docs.getindico.io/en/stable/installation/production/deb/nginx/">officiella installationsguide</a>: nginx, uWSGI, Celery, Redis, PostgreSQL</li>
+            <li>En egen <span class="kthhl">virtuell maskin</span> — flytt = återställ från backup</li>
+            <li>~1,6&nbsp;GB RAM i vila; 8&nbsp;GB räcker långt</li>
+            <li>PDF-konvertering via en LibreOffice-tjänst</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Underhåll</h3>
+          <ul>
+            <li>Mest <a href="https://docs.getindico.io/en/stable/installation/upgrade/">uppdateringar</a>: en 3.3.x-release var 1–3 månad</li>
+            <li>Nattlig databasdump + säkerhetskopia av hela VM:en, krypterad</li>
+            <li>Återställningstest innan tjänsten annonseras</li>
+            <li>KTH-profilen är ren CSS — kontrolleras efter varje uppgradering</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================================================================
+         10. Inloggning
+         ================================================================== -->
+    <section>
+      <p class="section-name">Design · Inloggning</p>
+      <h1>Inloggning via SWAMID</h1>
+      <p class="statusline">Status: <span class="st st-plan">planerad</span></p>
+
+      <div class="cols-2">
+        <div>
+          <ul>
+            <li>Indico registreras som tjänst (SP) i <span class="kthhl">SWAMID</span>, och via <span class="kthhl">eduGAIN</span> internationellt</li>
+            <li>KTH-konto — och <span class="kthhl">externa deltagare</span> loggar in med sitt eget lärosäte</li>
+            <li>Attribut enligt entitetskategorin <span class="kthhl">REFEDS Research &amp; Scholarship</span>: ID, namn, e-post</li>
+            <li>Samma upplägg som <a href="https://indico.fysik.su.se">SU:s fysikum</a></li>
+          </ul>
+        </div>
+        <div>
+          <ul>
+            <li><span class="kthhl">Lokala konton</span> finns kvar för den som inte har en federerad inloggning</li>
+            <li>Federerad inloggning kopplas till ett befintligt konto</li>
+            <li>Teknik: SAML direkt i Indico (Flask-Multipass) eller Shibboleth SP <span class="st st-inv">utvärderas</span></li>
+          </ul>
+          <div class="notebox" style="margin-top: 0.4em;">
+            SWAMID kräver en <strong>integritetspolicy</strong>, och registreringen knyts till tjänstens slutliga adress.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================================================================
+         11. Organisation & grupper
+         ================================================================== -->
+    <section>
+      <p class="section-name">Design · Organisation</p>
+      <h1>Organisationen som behörigheter</h1>
+      <p class="statusline">Status: <span class="st st-inv">utreds</span></p>
+
+      <div class="cols-2">
+        <div>
+          <ul>
+            <li>Kategoriträdet speglar organisationen: <span class="kthhl">skola → institution → avdelning</span></li>
+            <li>KTH:s organisationskoder, t.ex. <code>S</code> → <code>SH</code> → <code>SHR</code>, knyter kategori till enhet</li>
+            <li>Behörighet per kategori ges till <span class="kthhl">grupper</span>, inte enskilda personer</li>
+            <li>Den som byter avdelning får rätt åtkomst — <span class="kthhl">utan handpåläggning</span></li>
+          </ul>
+        </div>
+        <div>
+          <h3>Vad vi vet hittills</h3>
+          <ul>
+            <li>Enhetsträdet finns i KTH:s katalog (webb och katalog-API); anställning per enhet verkar finnas i <span class="kthhl">UG</span> (KTH:s AD/LDAP) — <em>bekräftas med KTH IT</em></li>
+            <li>Inloggning via SWAMID (R&amp;S) ger namn, e-post och anställd/student — <span class="kthhl">inte avdelning</span></li>
+            <li>Två vägar: Indico läser grupper <span class="kthhl">direkt ur UG</span> (LDAP, stöds av Indico), eller ett <span class="kthhl">synkjobb</span> till Indicos egna grupper</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================================================================
+         12. E-post & dataskydd
+         ================================================================== -->
+    <section>
+      <p class="section-name">Design · E-post och dataskydd</p>
+      <h1>E-post och personuppgifter</h1>
+
+      <div class="cols-2">
+        <div>
+          <h3>E-post <span class="st st-plan">planerad</span></h3>
+          <ul>
+            <li>Lösenordsåterställning, registreringar, påminnelser</li>
+            <li>Via <span class="kthhl">KTH:s SMTP-relä</span>, från en noreply-adress på kth.se</li>
+            <li>Arrangörens adress som <em>Reply-To</em>, så svar går rätt</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Dataskydd <span class="st st-todo">att göra</span></h3>
+          <ul>
+            <li><span class="kthhl">Integritetspolicy</span> länkad från Indico (krav i SWAMID)</li>
+            <li>Registrering i KTH:s förteckning över behandlingar</li>
+            <li>Mötesmaterial med personuppgifter i <span class="kthhl">skyddade</span> kategorier</li>
+            <li>Beslut om vad inloggade ser om andra användare</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================================================================
+         13. Divider — Piloten
+         ================================================================== -->
+    <section data-state="divider" data-transition="convex"
+             data-pattern="full" data-pattern-color="skyblue">
+      <p class="eyebrow">Del 3 av 3</p>
+      <h2>Piloten och migrering</h2>
+      <p class="lead">En KTH-profilerad Indico, med riktiga möten från gruppwebben.</p>
+    </section>
+
+    <!-- ==================================================================
+         14. Så ser piloten ut
+         ================================================================== -->
+    <section>
+      <p class="section-name">Pilot · Utseende</p>
+      <h1>Så ser piloten ut</h1>
+
+      <div class="cols-2">
+        <div>
+          <img class="shot" src="../img/indico-kategorier.png" alt="Kategoriträd i piloten">
+          <p class="shot-cap">KTH-profil: skola → institution → avdelning. Skölden markerar en <strong>skyddad</strong> kategori.</p>
+        </div>
+        <div>
+          <img class="shot" src="../img/indico-pam-lista.png" alt="En avdelnings mötesserie i piloten">
+          <p class="shot-cap">En avdelnings mötesserie, importerad från gruppwebben</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================================================================
+         15. Migrering från gruppwebben
+         ================================================================== -->
+    <section>
+      <p class="section-name">Pilot · Migrering</p>
+      <h1>Gruppwebben → Indico</h1>
+
+      <div class="cols-2">
+        <div>
+          <ol>
+            <li>Gruppens administratör gör en <span class="kthhl">komplett export</span> (ZIP: JSON + bilagor)</li>
+            <li>Två skript läser bara <span class="kthhl">strukturen</span> — klasser och antal, aldrig innehållet</li>
+            <li>Importskriptet körs först som <span class="kthhl">provkörning</span>, sedan på riktigt</li>
+            <li>Varje möte får tid, rum och en agendapunkt med <span class="kthhl">anteckningar och bilagor</span></li>
+          </ol>
+          <div class="kthbox" style="margin-top: 0.4em;">
+            Exempel: fem års mötesserie (2021–2026) — 136 möten, 62 bilagor — importerad till en
+            <span class="kthhl">skyddad</span> kategori.
+          </div>
+        </div>
+        <div>
+          <img class="shot" src="../img/gruppwebb-export.png" alt="Exportera gruppdata i gruppwebben">
+          <p class="shot-cap">Gruppwebben: <strong>Exportera &amp; Ta bort</strong> → komplett export</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================================================================
+         16. Före / efter
+         ================================================================== -->
+    <section>
+      <p class="section-name">Pilot · Före och efter</p>
+      <h1>Samma möten — nu i Indico</h1>
+
+      <div class="cols-2">
+        <div>
+          <img class="shot" src="../img/gruppwebb-kalender.png" alt="Gruppwebbens kalender">
+          <p class="shot-cap"><strong>Förr:</strong> gruppwebbens kalender</p>
+        </div>
+        <div>
+          <img class="shot" src="../img/indico-mote.png" alt="Ett importerat möte i Indico">
+          <p class="shot-cap"><strong>Nu:</strong> mötet i Indico med tid, rum, anteckningar och bilagor</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================================================================
+         17. Status
+         ================================================================== -->
+    <section>
+      <p class="section-name">Läget</p>
+      <h1>Status, del för del</h1>
+
+      <table style="font-size: 0.95em;">
+        <thead><tr><th>Del</th><th>Status</th><th>Kommentar</th></tr></thead>
+        <tbody>
+          <tr><td>Indico 3.3 med KTH-profil</td><td><span class="st st-live">i drift</span></td><td>pilot, <a href="https://indico.physics.kth.se">indico.physics.kth.se</a></td></tr>
+          <tr><td>Import från gruppwebben</td><td><span class="st st-live">fungerar</span></td><td>skript med provkörning</td></tr>
+          <tr><td>Säkerhetskopior</td><td><span class="st st-live">i drift</span></td><td>återställningstest kvar</td></tr>
+          <tr><td>Inloggning via SWAMID/eduGAIN</td><td><span class="st st-plan">planerad</span></td><td>lokala konton tills vidare</td></tr>
+          <tr><td>E-post via KTH:s relä</td><td><span class="st st-plan">planerad</span></td><td>tillfällig lösning tills vidare</td></tr>
+          <tr><td>Organisation &amp; grupper</td><td><span class="st st-inv">utreds</span></td><td>källa och metod</td></tr>
+          <tr><td>Integritetspolicy, behandlingsregister</td><td><span class="st st-todo">att göra</span></td><td>krävs före SWAMID</td></tr>
+          <tr><td>Central tjänst, slutlig adress</td><td><span class="st st-todo">beslut</span></td><td>t.ex. <code>indico.kth.se</code></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ==================================================================
+         18. Closing
+         ================================================================== -->
+    <section data-state="closing" data-transition="zoom"
+             data-pattern="tl, bl mirror-x" data-pattern-color="white">
+      <h2>Tack!</h2>
+      <p class="lead">Piloten: <a href="https://indico.physics.kth.se">indico.physics.kth.se</a>&nbsp;— <a href="mailto:chohm@kth.se">chohm@kth.se</a></p>
+    </section>
+
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.2.1/dist/reveal.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.2.1/plugin/highlight/highlight.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.2.1/plugin/notes/notes.js"></script>
+
+<script src="../../kth-doc-templates/reveal/kth-reveal.js"></script>
+
+<script>
+  Reveal.initialize({
+    width: 1920,
+    height: 1080,
+    margin: 0.0,
+    center: false,
+    controls: true,
+    controlsTutorial: false,
+    progress: false,
+    history: true,
+    hash: true,
+    slideNumber: false,
+    transition: 'slide',
+    transitionSpeed: 'default',
+    backgroundTransition: 'fade',
+    // ?print-pdf: one page per slide, all fragments shown.
+    // ?print-pdf&steps: one page per fragment step.
+    pdfSeparateFragments: /[?&]steps\b/.test(location.search),
+    pdfMaxPagesPerSlide: 1,
+    plugins: [ RevealHighlight, RevealNotes ],
+  });
+</script>
+
+</body>
+</html>
