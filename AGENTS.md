@@ -19,6 +19,7 @@ A pilot runs at `https://indico.physics.kth.se`. The goal is a central KTH servi
 | `gruppwebb/` | Gruppwebben export → Indico events (`gw-schema.py`, `gw-probe.py`, `gw-import.py`); see its README |
 | `accounts/make-accounts.py` | local accounts from a CSV plus a local group |
 | `branding/00-kth.css` | KTH colours, Figtree, header logo for Indico's pages |
+| `docs/` | privacy policy template for an Indico service (`privacy-policy.sv.md`, `.en.md`), placeholders in `{{…}}` |
 | `slides/` | reveal.js decks; shared screenshots in `slides/img/` |
 | `kth-doc-templates/` | git submodule ([cohm/kth-doc-templates](https://github.com/cohm/kth-doc-templates)): the KTH reveal theme and the KTH logo, used by the decks |
 
