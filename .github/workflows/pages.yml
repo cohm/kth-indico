@@ -1,0 +1,56 @@
+# Publish the slide decks to GitHub Pages.
+#
+# The site holds only slides/ plus the reveal theme from the kth-doc-templates
+# submodule, laid out so the decks' relative paths (../../kth-doc-templates/reveal/)
+# still resolve. Symlinks (the KTH logo in each deck folder) are copied as files,
+# since Pages does not follow them.
+
+name: Pages
+
+on:
+  push:
+    branches: [main]
+    paths: ['slides/**', 'kth-doc-templates', '.github/workflows/pages.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Assemble site
+        run: |
+          mkdir -p _site/kth-doc-templates
+          cp -RL slides _site/slides
+          cp -RL kth-doc-templates/reveal _site/kth-doc-templates/reveal
+          rm -f _site/kth-doc-templates/reveal/build-preview.mjs
+          printf '%s\n' '<!DOCTYPE html><meta charset="utf-8">' \
+            '<meta http-equiv="refresh" content="0; url=slides/">' \
+            '<a href="slides/">Slides</a>' > _site/index.html
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
