@@ -17,4 +17,17 @@ Written against Indico **v3.3.14**.
 Not included: server configuration (kept with the deployment), the KTH logo (KTH's asset; the
 decks take it from the submodule), and any personal data. CSV files and Gruppwebben exports must never be committed.
 
-Licence: to be decided (planned: MIT for code, CC BY 4.0 for documentation and decks).
+## Licence
+
+© 2026 Christian Ohm.
+
+- **Code** (`gruppwebb/`, `accounts/`, `branding/`, `.github/`): [MIT](LICENSE).
+- **Documentation and decks** (`docs/`, `slides/`, the READMEs and `AGENTS.md`):
+  [CC BY 4.0](LICENSE-docs). Credit "Christian Ohm, KTH" with a link to this repository.
+
+Not covered by either licence:
+- the KTH name, logo and visual identity, which are KTH's trademarks;
+- the `kth-doc-templates` submodule, which has its own licence;
+- Indico itself (MIT, CERN), which shows in the screenshots.
+
+The slides are published at <https://cohm.github.io/kth-indico/>.
