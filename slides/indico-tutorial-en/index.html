@@ -65,6 +65,11 @@
                     color: var(--kth-white); font: 700 26px/46px var(--heading-font, Figtree, sans-serif);
                     text-align: center; }
     .reveal .backlink { display: inline-block; margin-top: 0.6em; font-size: 24px; font-weight: 600; }
+    .reveal .title-warn { max-width: 1300px; margin: 0.6em auto 0; padding: 0.5em 0.9em;
+                          border-left: 10px solid var(--kth-brick); background: var(--kth-sand);
+                          font-size: 0.85em; line-height: 1.35; text-align: left; }
+    .reveal .title-warn p { margin: 0.15em 0; }
+    .reveal .title-warn strong { color: var(--kth-brick-dark); }
     .reveal .shot-cap { font-size: 0.6em; color: var(--kth-gray-dark); margin-top: 0.5em; line-height: 1.3; }
 
     /* Crop a screenshot without editing the file: --x/--y/--w/--h in source pixels */
@@ -839,13 +844,15 @@
       <section id="repeat-4">
         <p class="section-name">Next week · Result</p>
         <h1>The series in the category</h1>
-        <figure class="anno" style="--ar: 2.6519; display: block; margin: 0 auto;">
+        <figure class="anno" style="--ar: 2.6519; --mh: 560px; display: block; margin: 0 auto;">
           <img src="../img/tutorial/meeting-17-clones.png" alt="Category with three cloned meetings">
           <span class="ring" style="left: 12%; top: 74%; width: 25%; height: 23%;"></span>
         </figure>
-        <p class="shot-cap" style="text-align: center;">The clones keep the title: here all three say “week 49”.
-          Leave the week number out of the title, or edit each clone.
-          <a href="#/flow-repeat">↑ back to the flow</a></p>
+        <div class="title-warn">
+          <p>The clones keep the title: here all three say “week 49”.</p>
+          <p><strong>Leave week numbers and dates out of the event title</strong>, or edit each clone.</p>
+        </div>
+        <p class="shot-cap" style="text-align: center;"><a href="#/flow-repeat">↑ back to the flow</a></p>
       </section>
 
       <section id="repeat-5">
