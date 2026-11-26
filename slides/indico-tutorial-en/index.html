@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Getting started with Indico — tutorial</title>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.2.1/dist/reset.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.2.1/dist/reveal.css">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap">
+
+  <!-- KTH theme from the kth-doc-templates submodule. The logo is a symlink in this folder. -->
+  <link rel="stylesheet" href="../../kth-doc-templates/reveal/kth-reveal.css">
+  <style>
+    /* Screenshots live in ../img/tutorial/. Taken on the pilot (Indico v3.3.14) with made-up
+       people; e-mail addresses were blanked in the browser before capture. */
+
+    /* ---- UI labels: what to click, written as it appears in Indico ---- */
+    .reveal .ui { display: inline-block; padding: 0 0.35em; border: 2px solid var(--kth-gray);
+                  border-radius: 6px; background: var(--kth-white); color: var(--kth-navy);
+                  font-weight: 600; font-size: 0.9em; line-height: 1.35; white-space: nowrap; }
+    .reveal .muted { color: var(--kth-gray-dark); }
+
+    /* ---- Example tiles on the "three kinds of event" slide ---- */
+    .reveal .kinds { display: grid; grid-template-columns: repeat(3, 1fr); gap: 36px; margin-top: 30px; }
+    .reveal .kind { background: var(--kth-white); border-top: 10px solid var(--kth-blue);
+                    border-radius: 10px; padding: 26px 30px; box-shadow: 0 6px 20px rgba(0,0,0,0.08); }
+    .reveal .kind h3 { margin: 0 0 0.3em; color: var(--kth-navy); font-size: 40px; }
+    .reveal .kind p { margin: 0.3em 0; font-size: 27px; }
+    .reveal .kind.lec  { border-top-color: var(--kth-teal); }
+    .reveal .kind.conf { border-top-color: var(--kth-skyblue); }
+
+    /* ---- Annotated screenshots: markers are positioned in % of the image ---- */
+    /* Width = the smaller of the column and (target height × aspect ratio); --ar is set per figure */
+    .reveal figure.anno { position: relative; display: inline-block; margin: 0; line-height: 0;
+                           width: min(100%, calc(var(--mh, 730px) * var(--ar, 1.6)));
+                           justify-self: center; }
+    .reveal figure.anno img { display: block; width: 100%; height: auto; max-width: none; max-height: none; margin: 0;
+                              border: 1px solid #d0d0d0; border-radius: 6px;
+                              box-shadow: 0 6px 20px rgba(0,0,0,0.12); }
+    /* .hit: outline around the thing to click; its number sits outside, to the left */
+    .reveal .hit, .reveal .ring { position: absolute; box-sizing: border-box;
+                    border: 4px solid var(--kth-brick); border-radius: 8px;
+                    box-shadow: 0 0 0 2px rgba(255,255,255,0.9), 0 2px 10px rgba(0,0,0,0.25); }
+    .reveal .hit::after { content: attr(data-n); position: absolute; left: -54px; top: 50%;
+                    transform: translateY(-50%); width: 40px; height: 40px; border-radius: 50%;
+                    background: var(--kth-brick); color: var(--kth-white);
+                    font: 700 23px/40px var(--heading-font, Figtree, sans-serif); text-align: center;
+                    box-shadow: 0 0 0 3px var(--kth-white), 0 3px 10px rgba(0,0,0,0.35); }
+    .reveal .hit.in::after { left: 10px; top: 10px; transform: none; }
+    .reveal .tag { position: absolute; transform: translate(-50%, -50%); white-space: nowrap;
+                   background: var(--kth-navy); color: var(--kth-white); border-radius: 22px;
+                   padding: 4px 16px; font: 600 22px/1.4 var(--heading-font, Figtree, sans-serif);
+                   box-shadow: 0 3px 10px rgba(0,0,0,0.3); }
+    .reveal .tag::before { content: "● "; color: var(--kth-yellow); }
+
+    /* Legend next to an annotated screenshot: numbers match the markers */
+    .reveal ol.legend { list-style: none; padding: 0; margin: 0; counter-reset: none; }
+    .reveal ol.legend li { position: relative; padding-left: 66px; margin: 0 0 0.7em; font-size: 28px; }
+    .reveal ol.legend li::before { content: attr(data-n); position: absolute; left: 0; top: -4px;
+                    width: 46px; height: 46px; border-radius: 50%; background: var(--kth-brick);
+                    color: var(--kth-white); font: 700 26px/46px var(--heading-font, Figtree, sans-serif);
+                    text-align: center; }
+    .reveal .backlink { display: inline-block; margin-top: 0.6em; font-size: 24px; font-weight: 600; }
+    .reveal .shot-cap { font-size: 0.6em; color: var(--kth-gray-dark); margin-top: 0.5em; line-height: 1.3; }
+
+    /* Crop a screenshot without editing the file: --x/--y/--w/--h in source pixels */
+    .reveal .crop { position: relative; overflow: hidden; border: 1px solid #d0d0d0; border-radius: 6px;
+                    box-shadow: 0 6px 20px rgba(0,0,0,0.12); }
+    .reveal .crop img { display: block; max-width: none; margin: 0; border: 0; box-shadow: none; }
+
+    /* ---- Flowchart: steps pop in one at a time, each with a "what to click" bubble ---- */
+    .reveal .flow { display: flex; align-items: stretch; gap: 0; margin: 10px 0 0; }
+    .reveal .flow .step { flex: 1 1 0; position: relative; display: block; text-decoration: none;
+                          background: var(--kth-white); border: 3px solid var(--kth-skyblue);
+                          border-radius: 16px; padding: 18px 20px 16px 20px; color: var(--kth-brokenblack);
+                          font-size: 24px; line-height: 1.3;
+                          transition: background 0.3s, border-color 0.3s, box-shadow 0.3s, transform 0.3s; }
+    .reveal .flow .step .n { display: inline-block; width: 40px; height: 40px; border-radius: 50%;
+                             background: var(--kth-navy); color: var(--kth-white); text-align: center;
+                             font: 700 22px/40px var(--heading-font, Figtree, sans-serif); margin-bottom: 8px; }
+    .reveal .flow .step b { display: block; color: var(--kth-navy); font-size: 28px; margin-bottom: 4px; }
+    .reveal .flow .step small { color: var(--kth-gray-dark); font-size: 21px; }
+    .reveal .flow .step.current-fragment { background: var(--kth-lightblue); border-color: var(--kth-blue);
+                                           box-shadow: 0 10px 26px rgba(0,71,145,0.22); transform: translateY(-4px); }
+    .reveal .flow .arrow { flex: 0 0 56px; align-self: center; text-align: center;
+                           color: var(--kth-skyblue); font-size: 50px; font-weight: 700; }
+
+    .reveal .detail-stack { margin-top: 34px; }
+    .reveal .detail { display: grid; grid-template-columns: 560px 1fr; gap: 44px; align-items: start;
+                     padding-left: var(--pl, 0); box-sizing: border-box; width: 100%; }
+    /* .flip: thumbnail left, bubble right, so the bubble sits under a step on the right */
+    .reveal .detail.flip { grid-template-columns: var(--tw, 1fr) 560px; }
+    .reveal .detail.flip .bubble { order: 2; }
+    .reveal .detail.flip .thumb { order: 1; justify-self: end; }
+    .reveal .bubble { position: relative; background: var(--kth-navy); color: var(--kth-white);
+                      border-radius: 18px; padding: 26px 30px; font-size: 28px; line-height: 1.4;
+                      box-shadow: 0 10px 28px rgba(0,0,97,0.25); }
+    .reveal .bubble::before { content: ""; position: absolute; top: -18px; left: var(--tip, 60px);
+                              border: 18px solid transparent; border-top: 0; border-bottom-color: var(--kth-navy); }
+    .reveal .bubble .ui { color: var(--kth-navy); border-color: var(--kth-white); }
+    .reveal .bubble p { margin: 0 0 0.4em; color: var(--kth-white); }
+    .reveal .bubble p:last-child { margin-bottom: 0; }
+    .reveal .bubble .more { display: block; margin-top: 14px; font-size: 22px; color: var(--kth-lightblue); }
+    .reveal .bubble a { color: var(--kth-yellow); }
+    .reveal .detail .thumb { display: block; max-width: 100%; max-height: 420px; margin: 0;
+                             border: 1px solid #d0d0d0; border-radius: 6px; box-shadow: 0 6px 20px rgba(0,0,0,0.12); }
+    .reveal .intro { font-size: 30px; color: var(--kth-gray-dark); }
+
+    /* print-pdf without &steps: show every step box, hide the per-step pop-ups */
+    html.print-all .reveal .detail-stack { display: none !important; }
+  </style>
+</head>
+<body>
+
+<div class="reveal"
+     data-kth-author="Christian Ohm"
+     data-kth-institute="School of Engineering Sciences (SCI), KTH"
+     data-kth-affiliation-short="SCI">
+
+  <div class="slides">
+
+    <!-- ==================================================================
+         Cover
+         ================================================================== -->
+    <section data-state="cover" data-transition="fade"
+             data-pattern="tl, bl mirror-x" data-pattern-color="skyblue">
+      <p class="doctype">Tutorial · for meeting organisers</p>
+      <h1>Getting started with Indico</h1>
+      <p class="subtitle">Meetings, lectures and conferences:<br>what they look like and how to make one</p>
+      <p class="meta">
+        <strong>Christian Ohm</strong>
+        School of Engineering Sciences (SCI), KTH
+      </p>
+    </section>
+
+    <!-- ==================================================================
+         Three kinds of event
+         ================================================================== -->
+    <section>
+      <p class="section-name">Indico · Overview</p>
+      <h1>One link for the whole event</h1>
+      <p>Agenda, slides, minutes, video link and calendar entry, all on one page.
+         Indico has three kinds of event:</p>
+      <div class="kinds">
+        <div class="kind">
+          <h3>Meeting</h3>
+          <p>Agenda with times and speakers, slides per item, minutes.</p>
+          <p class="muted">Group meetings, seminars, boards</p>
+        </div>
+        <div class="kind lec">
+          <h3>Lecture</h3>
+          <p>One talk: speaker, abstract, slides.</p>
+          <p class="muted">Colloquia, guest lectures, defences</p>
+        </div>
+        <div class="kind conf">
+          <h3>Conference</h3>
+          <p>Several days, timetable, registration, call for abstracts.</p>
+          <p class="muted">Workshops, schools, conferences</p>
+        </div>
+      </div>
+      <div class="kthbox" style="margin-top: 40px;">
+        Arrow keys: <strong>→</strong> next topic, <strong>↓</strong> screenshots with exactly where to click.
+      </div>
+    </section>
+
+    <!-- ==================================================================
+         Divider: examples
+         ================================================================== -->
+    <section data-state="divider" data-transition="convex"
+             data-pattern="full" data-pattern-color="skyblue">
+      <p class="eyebrow">Part 1 of 3</p>
+      <h2>What it looks like</h2>
+      <p class="lead">A meeting, a lecture and two conferences.</p>
+    </section>
+
+    <!-- Meeting example (our test meeting) -->
+    <section>
+      <p class="section-name">Examples · Meeting</p>
+      <h1>A group meeting</h1>
+      <div style="text-align: center;">
+        <figure class="anno" style="--ar: 1.5876; --mh: 690px;">
+          <img src="../img/tutorial/meeting-13-minutes-shown.png" alt="A meeting page with agenda, slides and minutes">
+          <span class="tag fragment" style="left: 60%; top: 13%;">Time and room</span>
+          <span class="tag fragment" style="left: 80%; top: 22.7%;">Video link in the description</span>
+          <span class="tag fragment" style="left: 10%; top: 26%;">Agenda with times</span>
+          <span class="tag fragment" style="left: 60%; top: 38%;">Speaker</span>
+          <span class="tag fragment" style="left: 44%; top: 42.3%;">Slides per item</span>
+          <span class="tag fragment" style="left: 66%; top: 58%;">Minutes per item</span>
+        </figure>
+      </div>
+      <p class="shot-cap" style="text-align: center;">The example meeting built for this tutorial on the KTH pilot. Made-up people.</p>
+    </section>
+
+    <!-- Lecture example (XFEL) -->
+    <section>
+      <p class="section-name">Examples · Lecture</p>
+      <h1>A seminar talk</h1>
+      <div>
+        <div class="crop" style="aspect-ratio: 990 / 400; width: 1500px; margin: 0 auto;">
+          <img src="../img/tutorial/public-xfel-lecture.png" alt="A lecture event at European XFEL"
+               style="width: 139.2%; margin-left: -19.7%; margin-top: -5.56%;">
+        </div>
+        <p style="text-align: center; margin-top: 24px;">Title, speaker and <span class="kthhl">abstract</span>
+          · part of a <span class="kthhl">series</span> · slides and recording attached afterwards</p>
+      </div>
+      <p class="shot-cap">European XFEL, <a href="https://indico.xfel.eu/event/510/">indico.xfel.eu/event/510</a></p>
+    </section>
+
+    <!-- Conference example (ESA): overview, then timetable -->
+    <section>
+      <p class="section-name">Examples · Conference</p>
+      <h1>A three-day workshop</h1>
+      <div class="cols-2" style="grid-template-columns: 1143px 1fr; align-items: start;">
+        <div class="r-stack">
+          <img class="fragment fade-out" data-fragment-index="1" src="../img/tutorial/public-esa-overview.png"
+               alt="ESA workshop overview page"
+               style="max-height: 690px; border: 1px solid #d0d0d0; border-radius: 6px; box-shadow: 0 6px 20px rgba(0,0,0,0.12);">
+          <img class="fragment fade-in" data-fragment-index="1" src="../img/tutorial/public-esa-timetable.png"
+               alt="ESA workshop timetable"
+               style="max-height: 690px; border: 1px solid #d0d0d0; border-radius: 6px; box-shadow: 0 6px 20px rgba(0,0,0,0.12);">
+        </div>
+        <div>
+          <ul>
+            <li>Own <span class="kthhl">banner and menu</span>: overview, timetable, registration, surveys</li>
+            <li class="fragment" data-fragment-index="1">The <span class="kthhl">timetable</span>: sessions, talks and speakers, per day</li>
+          </ul>
+        </div>
+      </div>
+      <p class="shot-cap">ESA, <a href="https://indico.esa.int/event/664/overview">indico.esa.int/event/664</a></p>
+    </section>
+
+    <!-- Conference example (indico.global) -->
+    <section>
+      <p class="section-name">Examples · Conference</p>
+      <h1>A conference with a call for abstracts</h1>
+      <div class="cols-2" style="grid-template-columns: 1143px 1fr; align-items: start;">
+        <figure class="anno" style="--ar: 1.5876; --mh: 690px;">
+          <img src="../img/tutorial/public-global-overview.png" alt="ETH Zurich conference on indico.global">
+          <span class="ring fragment" data-fragment-index="1" style="left: 16.5%; top: 36.5%; width: 15%; height: 29%;"></span>
+        </figure>
+        <div>
+          <ul>
+            <li>Own logo and colours</li>
+            <li class="fragment" data-fragment-index="1">Menu: <span class="kthhl">call for abstracts</span>, contribution list, registration, video streams</li>
+            <li class="fragment" data-fragment-index="2">Recordings linked after the event</li>
+          </ul>
+        </div>
+      </div>
+      <p class="shot-cap">ETH Zürich on indico.global, <a href="https://indico.global/event/9808/">indico.global/event/9808</a></p>
+    </section>
+
+    <!-- ==================================================================
+         Divider: first meeting
+         ================================================================== -->
+    <section data-state="divider" data-transition="convex"
+             data-pattern="full" data-pattern-color="skyblue">
+      <p class="eyebrow">Part 2 of 3</p>
+      <h2>Your first meeting</h2>
+      <p class="lead">Create it, build the agenda, add slides and minutes, repeat next week.</p>
+    </section>
+
+    <!-- Before you start -->
+    <section>
+      <p class="section-name">First meeting · Before you start</p>
+      <h1>Three things to know</h1>
+      <div class="kinds" style="margin-top: 10px;">
+        <div class="kind">
+          <h3>Log in</h3>
+          <p>Top right of any Indico page. You need to be logged in to create events and upload.</p>
+        </div>
+        <div class="kind lec">
+          <h3>Category</h3>
+          <p>Every event lives in a category, like a folder: school › department › group.
+             Create the event from your group's category page.</p>
+        </div>
+        <div class="kind conf">
+          <h3>Protection</h3>
+          <p><span class="ui">Public</span>, <span class="ui">Inheriting</span> (same as the category) or
+             <span class="ui">Protected</span> (only listed people and groups).</p>
+        </div>
+      </div>
+      <div class="notebox" style="margin-top: 40px;">
+        Minutes often name colleagues. Put internal meeting series in a <strong>protected</strong> category.
+      </div>
+    </section>
+
+    <!-- ==================================================================
+         Flow 1: create the meeting   (↓ backups)
+         ================================================================== -->
+    <section>
+      <section id="flow-create">
+        <p class="section-name">First meeting · 1 of 4</p>
+        <h1>Create the meeting</h1>
+        <div class="flow">
+          <a class="step fragment" data-fragment-index="1" href="#/create-1">
+            <span class="n">1</span><b>Create event</b><small>on your category page</small></a>
+          <div class="arrow fragment" data-fragment-index="2">→</div>
+          <a class="step fragment" data-fragment-index="2" href="#/create-2">
+            <span class="n">2</span><b>Title, time, room</b><small>and who can see it</small></a>
+          <div class="arrow fragment" data-fragment-index="3">→</div>
+          <a class="step fragment" data-fragment-index="3" href="#/create-3">
+            <span class="n">3</span><b>Settings page</b><small>where you manage it</small></a>
+        </div>
+        <div class="r-stack detail-stack">
+          <p class="intro fragment fade-out" data-fragment-index="1">A meeting takes about a minute to create. The agenda comes next.</p>
+          <div class="detail fragment current-visible" style="--tip: 246px;" data-fragment-index="1">
+            <div class="bubble">
+              <p>On the category page, click <span class="ui">Create event ▾</span> and choose <span class="ui">Meeting</span>.</p>
+              <a class="more" href="#/create-1">↓ screenshot</a>
+            </div>
+            <img class="thumb" src="../img/tutorial/meeting-01-create-menu.png" alt="">
+          </div>
+          <div class="detail flip fragment current-visible" style="--tw: 524px; --tip: 262px;" data-fragment-index="2">
+            <div class="bubble">
+              <p>Fill in <strong>title</strong>, <strong>start</strong> and <strong>end</strong>, and venue and room.</p>
+              <p>Leave protection on <span class="ui">Inheriting</span> unless the meeting needs its own rules.</p>
+              <p>Click <span class="ui">Create event</span>.</p>
+              <a class="more" href="#/create-2">↓ screenshot</a>
+            </div>
+            <img class="thumb" src="../img/tutorial/meeting-02-create-dialog.png" alt="">
+          </div>
+          <div class="detail flip fragment current-visible" style="--tip: 278px;" data-fragment-index="3">
+            <div class="bubble">
+              <p>You land on the <strong>management</strong> pages. The menu on the left has
+                 <span class="ui">Timetable</span> and <span class="ui">Protection</span>.</p>
+              <p><span class="ui">Switch to display view</span> shows the page as others see it.</p>
+              <a class="more" href="#/create-3">↓ screenshot</a>
+            </div>
+            <img class="thumb" src="../img/tutorial/meeting-03-settings.png" alt="">
+          </div>
+        </div>
+      </section>
+
+      <section id="create-1">
+        <p class="section-name">Create the meeting · Step 1</p>
+        <h1>Create event ▸ Meeting</h1>
+        <div>
+          <figure class="anno" style="--ar: 3.2802; display: block; margin: 0 auto;">
+            <img src="../img/tutorial/meeting-01-create-menu.png" alt="Create event menu on a category page">
+          <span class="hit" data-n="1" style="left: 59.9%; top: 43.5%; width: 8.3%; height: 8.0%;"></span>
+          <span class="hit" data-n="2" style="left: 60.0%; top: 58.3%; width: 8.0%; height: 8.0%;"></span>
+          </figure>
+          <div>
+            <ol class="legend" style="display: flex; gap: 70px; margin-top: 36px;">
+              <li data-n="1">On your group's category page: <span class="ui">Create event ▾</span></li>
+              <li data-n="2">Choose <span class="ui">Meeting</span></li>
+            </ol>
+            <p class="muted" style="font-size: 24px;">The same menu creates lectures and conferences.</p>
+            <a class="backlink" href="#/flow-create">↑ back to the flow</a>
+          </div>
+        </div>
+      </section>
+
+      <section id="create-2">
+        <p class="section-name">Create the meeting · Step 2</p>
+        <h1>Title, time, room</h1>
+        <div class="cols-2" style="grid-template-columns: 1fr 440px; align-items: start;">
+          <figure class="anno" style="--ar: 1.4454;">
+            <img src="../img/tutorial/meeting-02-create-dialog.png" alt="Create new meeting dialog">
+          <span class="hit" data-n="1" style="left: 22.3%; top: 26.2%; width: 66.5%; height: 6.9%;"></span>
+          <span class="hit" data-n="2" style="left: 22.3%; top: 34.3%; width: 34.9%; height: 6.9%;"></span>
+          <span class="hit" data-n="3" style="left: 22.3%; top: 59.8%; width: 66.5%; height: 6.9%;"></span>
+          <span class="hit" data-n="4" style="left: 22.3%; top: 68.1%; width: 28.2%; height: 6.1%;"></span>
+          <span class="hit" data-n="5" style="left: 22.3%; top: 89.1%; width: 13.9%; height: 7.6%;"></span>
+          </figure>
+          <div>
+            <ol class="legend">
+              <li data-n="1">Title. For a series, leave out the week number: clones copy the title.</li>
+              <li data-n="2">Start and end date and time</li>
+              <li data-n="3">Venue and room (free text)</li>
+              <li data-n="4">Who can see it. The box below says what it means here.</li>
+              <li data-n="5"><span class="ui">Create event</span></li>
+            </ol>
+            <a class="backlink" href="#/flow-create">↑ back to the flow</a>
+          </div>
+        </div>
+      </section>
+
+      <section id="create-3">
+        <p class="section-name">Create the meeting · Step 3</p>
+        <h1>The management pages</h1>
+        <div class="cols-2" style="grid-template-columns: 1fr 440px; align-items: start;">
+          <figure class="anno" style="--ar: 1.5876;">
+            <img src="../img/tutorial/meeting-03-settings.png" alt="Meeting settings page">
+          <span class="hit" data-n="1" style="left: 1.7%; top: 21.0%; width: 14.5%; height: 4.0%;"></span>
+          <span class="hit" data-n="2" style="left: 1.9%; top: 31.3%; width: 14.4%; height: 4.7%;"></span>
+          <span class="hit" data-n="3" style="left: 1.9%; top: 35.5%; width: 14.4%; height: 4.7%;"></span>
+          <span class="hit" data-n="4" style="left: 70.5%; top: 34.7%; width: 2.4%; height: 3.8%;"></span>
+          </figure>
+          <div>
+            <ol class="legend">
+              <li data-n="1"><span class="ui">Switch to display view</span>: the page as others see it</li>
+              <li data-n="2"><span class="ui">Timetable</span>: the agenda (next part)</li>
+              <li data-n="3"><span class="ui">Protection</span>: who can see and edit</li>
+              <li data-n="4">Pencil: edit title, <strong>description</strong> (put the video link here), short URL</li>
+            </ol>
+            <a class="backlink" href="#/flow-create">↑ back to the flow</a>
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <!-- ==================================================================
+         Flow 2: build the agenda   (↓ backups)
+         ================================================================== -->
+    <section>
+      <section id="flow-agenda">
+        <p class="section-name">First meeting · 2 of 4</p>
+        <h1>Build the agenda</h1>
+        <div class="flow">
+          <a class="step fragment" data-fragment-index="1" href="#/agenda-1">
+            <span class="n">1</span><b>Timetable</b><small>Add new ▸ Contribution</small></a>
+          <div class="arrow fragment" data-fragment-index="2">→</div>
+          <a class="step fragment" data-fragment-index="2" href="#/agenda-2">
+            <span class="n">2</span><b>Title &amp; duration</b><small>start time follows on</small></a>
+          <div class="arrow fragment" data-fragment-index="3">→</div>
+          <a class="step fragment" data-fragment-index="3" href="#/agenda-3">
+            <span class="n">3</span><b>Speaker</b><small>search, or enter manually</small></a>
+          <div class="arrow fragment" data-fragment-index="4">→</div>
+          <a class="step fragment" data-fragment-index="4" href="#/agenda-5">
+            <span class="n">4</span><b>Check it</b><small>display view</small></a>
+        </div>
+        <div class="r-stack detail-stack">
+          <p class="intro fragment fade-out" data-fragment-index="1">Each agenda item is a <em>contribution</em>. Breaks are separate.</p>
+          <div class="detail fragment current-visible" style="--tip: 173px;" data-fragment-index="1">
+            <div class="bubble">
+              <p>Left menu <span class="ui">Timetable</span>, then <span class="ui">Add new ▾</span> ▸ <span class="ui">Contribution</span>.</p>
+              <p>A coffee break: <span class="ui">Add new ▾</span> ▸ <span class="ui">Break</span>.</p>
+              <a class="more" href="#/agenda-1">↓ screenshot</a>
+            </div>
+            <img class="thumb" src="../img/tutorial/meeting-04-timetable-add.png" alt="">
+          </div>
+          <div class="detail fragment current-visible" style="--pl: 349px; --tip: 262px;" data-fragment-index="2">
+            <div class="bubble">
+              <p>Type a <strong>title</strong> and a <strong>duration</strong> (for example <code>0:20</code>).</p>
+              <p>The start time is filled in after the previous item.</p>
+              <a class="more" href="#/agenda-2">↓ screenshot</a>
+            </div>
+            <img class="thumb" src="../img/tutorial/meeting-05-contribution.png" alt="">
+          </div>
+          <div class="detail flip fragment current-visible" style="--tw: 743px; --tip: 262px;" data-fragment-index="3">
+            <div class="bubble">
+              <p>Colleague with an account: <span class="ui">Add from search</span>, type the name, click <strong>+</strong>, <span class="ui">Confirm</span>.</p>
+              <p>Guest: <span class="ui">Enter manually</span>, name and affiliation.</p>
+              <a class="more" href="#/agenda-3">↓ screenshots</a>
+            </div>
+            <img class="thumb" src="../img/tutorial/meeting-06-user-search.png" alt="">
+          </div>
+          <div class="detail flip fragment current-visible" style="--tip: 351px;" data-fragment-index="4">
+            <div class="bubble">
+              <p><span class="ui">Switch to display view</span>: the agenda as everyone sees it.</p>
+              <a class="more" href="#/agenda-5">↓ screenshot</a>
+            </div>
+            <img class="thumb" src="../img/tutorial/meeting-08-display.png" alt="">
+          </div>
+        </div>
+      </section>
+
+      <section id="agenda-1">
+        <p class="section-name">Build the agenda · Step 1</p>
+        <h1>Timetable ▸ Add new</h1>
+        <div class="cols-2" style="grid-template-columns: 1fr 440px; align-items: start;">
+          <figure class="anno" style="--ar: 1.5876;">
+            <img src="../img/tutorial/meeting-04-timetable-add.png" alt="Timetable with the Add new menu">
+          <span class="hit" data-n="1" style="left: 1.9%; top: 31.3%; width: 14.4%; height: 4.7%;"></span>
+          <span class="hit" data-n="2" style="left: 85.5%; top: 38.0%; width: 6.6%; height: 3.9%;"></span>
+          <span class="hit" data-n="3" style="left: 85.6%; top: 44.2%; width: 7.8%; height: 6.5%;"></span>
+          </figure>
+          <div>
+            <ol class="legend">
+              <li data-n="1"><span class="ui">Timetable</span> in the left menu</li>
+              <li data-n="2"><span class="ui">Add new ▾</span></li>
+              <li data-n="3"><span class="ui">Contribution</span> for an agenda item, <span class="ui">Break</span> for coffee</li>
+            </ol>
+            <p class="muted" style="font-size: 24px;">Drag the lower edge of an item to change its length.</p>
+            <a class="backlink" href="#/flow-agenda">↑ back to the flow</a>
+          </div>
+        </div>
+      </section>
+
+      <section id="agenda-2">
+        <p class="section-name">Build the agenda · Step 2</p>
+        <h1>The agenda item</h1>
+        <div class="cols-2" style="grid-template-columns: 1fr 440px; align-items: start;">
+          <figure class="anno tall" style="--ar: 0.9467;">
+            <img src="../img/tutorial/meeting-05-contribution.png" alt="Add contribution dialog">
+          <span class="hit" data-n="1" style="left: 22.3%; top: 7.5%; width: 66.5%; height: 4.5%;"></span>
+          <span class="hit" data-n="2" style="left: 22.3%; top: 51.6%; width: 15.3%; height: 4.5%;"></span>
+          <span class="hit" data-n="3" style="left: 22.3%; top: 57.0%; width: 66.5%; height: 12.4%;"></span>
+          <span class="hit" data-n="4" style="left: 22.3%; top: 95.5%; width: 7.6%; height: 4.9%;"></span>
+          </figure>
+          <div>
+            <ol class="legend">
+              <li data-n="1">Title. A description is optional (Markdown and LaTeX work).</li>
+              <li data-n="2">Duration, as <code>h:mm</code></li>
+              <li data-n="3">Speakers (next step)</li>
+              <li data-n="4"><span class="ui">Save</span></li>
+            </ol>
+            <a class="backlink" href="#/flow-agenda">↑ back to the flow</a>
+          </div>
+        </div>
+      </section>
+
+      <section id="agenda-3">
+        <p class="section-name">Build the agenda · Step 3</p>
+        <h1>Add a speaker from search</h1>
+        <div class="cols-2" style="grid-template-columns: 1fr 440px; align-items: start;">
+          <figure class="anno" style="--ar: 1.6426;">
+            <img src="../img/tutorial/meeting-06-user-search.png" alt="Select users dialog">
+          <span class="hit" data-n="1" style="left: 2.3%; top: 33.2%; width: 31.5%; height: 8.1%;"></span>
+          <span class="hit" data-n="2" style="left: 2.3%; top: 76.0%; width: 12.5%; height: 7.9%;"></span>
+          <span class="hit" data-n="3" style="left: 93.0%; top: 24.2%; width: 4.6%; height: 6.5%;"></span>
+          <span class="hit" data-n="4" style="left: 75.5%; top: 89.0%; width: 11.3%; height: 7.8%;"></span>
+          </figure>
+          <div>
+            <ol class="legend">
+              <li data-n="1">Type a name (given or family name is enough)</li>
+              <li data-n="2"><span class="ui">Search</span></li>
+              <li data-n="3"><strong>+</strong> next to the right person</li>
+              <li data-n="4"><span class="ui">Confirm</span></li>
+            </ol>
+            <p class="muted" style="font-size: 24px;">Speakers with an account can upload their own slides.</p>
+            <a class="backlink" href="#/flow-agenda">↑ back to the flow</a>
+          </div>
+        </div>
+      </section>
+
+      <section id="agenda-4">
+        <p class="section-name">Build the agenda · Step 3</p>
+        <h1>Or enter a guest manually</h1>
+        <div class="cols-2" style="grid-template-columns: 1fr 440px; align-items: start;">
+          <figure class="anno" style="--ar: 1.0648;">
+            <img src="../img/tutorial/meeting-07-enter-person.png" alt="Enter person dialog">
+          <span class="hit" data-n="1" style="left: 3.3%; top: 34.8%; width: 46.1%; height: 9.0%;"></span>
+          <span class="hit" data-n="2" style="left: 50.6%; top: 20.2%; width: 46.1%; height: 8.8%;"></span>
+          <span class="hit" data-n="3" style="left: 65.7%; top: 89.0%; width: 15.1%; height: 8.4%;"></span>
+          </figure>
+          <div>
+            <ol class="legend">
+              <li data-n="1">First and family name</li>
+              <li data-n="2">Affiliation (shown next to the name)</li>
+              <li data-n="3"><span class="ui">Save</span></li>
+            </ol>
+            <p class="muted" style="font-size: 24px;">E-mail is optional. Indico then warns that the person has no account and so can't upload.</p>
+            <a class="backlink" href="#/flow-agenda">↑ back to the flow</a>
+          </div>
+        </div>
+      </section>
+
+      <section id="agenda-5">
+        <p class="section-name">Build the agenda · Step 4</p>
+        <h1>The finished agenda</h1>
+        <div class="cols-2" style="grid-template-columns: 1fr 440px; align-items: start;">
+          <figure class="anno" style="--ar: 1.5876;">
+            <img src="../img/tutorial/meeting-08-display.png" alt="Meeting display view">
+          <span class="hit" data-n="1" style="left: 14.2%; top: 27.2%; width: 69.9%; height: 5.8%;"></span>
+          <span class="hit" data-n="2" style="left: 14.2%; top: 58.3%; width: 69.9%; height: 4.4%;"></span>
+          <span class="hit" data-n="3" style="left: 80.1%; top: 34.9%; width: 3.8%; height: 4.0%;"></span>
+          <span class="hit" data-n="4" style="left: 78.7%; top: 9.2%; width: 3.8%; height: 4.0%;"></span>
+          </figure>
+          <div>
+            <ol class="legend">
+              <li data-n="1">Items with times and speakers</li>
+              <li data-n="2">Breaks</li>
+              <li data-n="3">Edit menu per item: slides and minutes (next part)</li>
+              <li data-n="4">Edit menu for the whole meeting</li>
+            </ol>
+            <a class="backlink" href="#/flow-agenda">↑ back to the flow</a>
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <!-- ==================================================================
+         Flow 3: slides and minutes   (↓ backups)
+         ================================================================== -->
+    <section>
+      <section id="flow-material">
+        <p class="section-name">First meeting · 3 of 4</p>
+        <h1>Slides and minutes</h1>
+        <div class="flow">
+          <a class="step fragment" data-fragment-index="1" href="#/material-1">
+            <span class="n">1</span><b>Item menu ✎▾</b><small>on the meeting page</small></a>
+          <div class="arrow fragment" data-fragment-index="2">→</div>
+          <a class="step fragment" data-fragment-index="2" href="#/material-2">
+            <span class="n">2</span><b>Material editor</b><small>Upload files</small></a>
+          <div class="arrow fragment" data-fragment-index="3">→</div>
+          <a class="step fragment" data-fragment-index="3" href="#/material-3">
+            <span class="n">3</span><b>Add minutes</b><small>per item or meeting</small></a>
+          <div class="arrow fragment" data-fragment-index="4">→</div>
+          <a class="step fragment" data-fragment-index="4" href="#/material-4">
+            <span class="n">4</span><b>Done</b><small>all on one page</small></a>
+        </div>
+        <div class="r-stack detail-stack">
+          <p class="intro fragment fade-out" data-fragment-index="1">All of this happens on the meeting page itself, before, during or after the meeting.</p>
+          <div class="detail fragment current-visible" style="--tip: 173px;" data-fragment-index="1">
+            <div class="bubble">
+              <p>Each agenda item has an edit button <span class="ui">✎ ▾</span> on the right.</p>
+              <p>The button at the top does the same for the whole meeting.</p>
+              <a class="more" href="#/material-1">↓ screenshot</a>
+            </div>
+            <img class="thumb" src="../img/tutorial/meeting-11-item-menu.png" alt="">
+          </div>
+          <div class="detail fragment current-visible" style="--pl: 349px; --tip: 262px;" data-fragment-index="2">
+            <div class="bubble">
+              <p><span class="ui">Material editor</span> ▸ <span class="ui">Upload files</span>, pick the file, <span class="ui">Upload</span>.</p>
+              <p><span class="ui">Add link</span> for a recording or a shared folder.</p>
+              <a class="more" href="#/material-2">↓ screenshots</a>
+            </div>
+            <img class="thumb" src="../img/tutorial/meeting-10-upload.jpg" alt="">
+          </div>
+          <div class="detail flip fragment current-visible" style="--tw: 743px; --tip: 262px;" data-fragment-index="3">
+            <div class="bubble">
+              <p><span class="ui">Add minutes</span> opens an editor. Type, then <span class="ui">Save</span>.</p>
+              <p>For the whole meeting, use the top menu. <span class="ui">Compile Minutes</span> gathers the item minutes there.</p>
+              <a class="more" href="#/material-3">↓ screenshot</a>
+            </div>
+            <img class="thumb" src="../img/tutorial/meeting-12-minutes-editor.jpg" alt="">
+          </div>
+          <div class="detail flip fragment current-visible" style="--tip: 351px;" data-fragment-index="4">
+            <div class="bubble">
+              <p>Slides appear under each item. The <span class="ui">≡</span> button shows the minutes.</p>
+              <a class="more" href="#/material-4">↓ screenshot</a>
+            </div>
+            <img class="thumb" src="../img/tutorial/meeting-13-minutes-shown.png" alt="">
+          </div>
+        </div>
+      </section>
+
+      <section id="material-1">
+        <p class="section-name">Slides and minutes · Step 1</p>
+        <h1>The edit menu of an item</h1>
+        <figure class="anno" style="--ar: 2.6783; display: block; margin: 0 auto;">
+          <img src="../img/tutorial/meeting-11-item-menu.png" alt="Edit menu of an agenda item">
+          <span class="hit" data-n="1" style="left: 82.2%; top: 51.3%; width: 4.7%; height: 7.9%;"></span>
+          <span class="hit" data-n="2" style="left: 82.3%; top: 58.0%; width: 15.9%; height: 7.7%;"></span>
+          <span class="hit" data-n="3" style="left: 82.3%; top: 76.5%; width: 15.9%; height: 7.9%;"></span>
+        </figure>
+        <div style="display: flex; gap: 60px; justify-content: center; margin-top: 24px; font-size: 26px;">
+          <span><b style="color: var(--kth-brick);">1</b> <span class="ui">✎ ▾</span> on the item</span>
+          <span><b style="color: var(--kth-brick);">2</b> <span class="ui">Add minutes</span></span>
+          <span><b style="color: var(--kth-brick);">3</b> <span class="ui">Material editor</span></span>
+          <a class="backlink" style="margin: 0;" href="#/flow-material">↑ back to the flow</a>
+        </div>
+      </section>
+
+      <section id="material-2">
+        <p class="section-name">Slides and minutes · Step 2</p>
+        <h1>Upload slides</h1>
+        <div class="cols-2" style="grid-template-columns: 1fr 640px; align-items: start; gap: 60px;">
+          <div>
+            <div class="crop" style="aspect-ratio: 796 / 221; width: 100%;">
+              <img src="../img/tutorial/meeting-09-materials.jpg" alt="Manage materials dialog"
+                   style="width: 173.1%; margin-left: -36.56%; margin-top: -40.7%;">
+              <span class="hit" data-n="1" style="left: 71.5%; top: 27.1%; width: 14.7%; height: 16.3%;"></span>
+            </div>
+            <ol class="legend" style="margin-top: 30px;">
+              <li data-n="1"><span class="ui">Upload files</span> (or <span class="ui">Add link</span>)</li>
+              <li data-n="2">Drag the file in, or choose it</li>
+              <li data-n="3"><span class="ui">Protected</span>: only for some people</li>
+              <li data-n="4"><span class="ui">Upload</span></li>
+            </ol>
+            <a class="backlink" href="#/flow-material">↑ back to the flow</a>
+          </div>
+          <div class="crop" style="aspect-ratio: 796 / 724; width: 640px;">
+            <img src="../img/tutorial/meeting-10-upload.jpg" alt="Upload files dialog"
+                 style="width: 173.1%; margin-left: -36.56%; margin-top: -4.52%;">
+            <span class="hit in" data-n="2" style="left: 3.1%; top: 8.0%; width: 93.3%; height: 32.6%;"></span>
+            <span class="hit" data-n="3" style="left: 22.2%; top: 53.0%; width: 6.9%; height: 4.1%;"></span>
+            <span class="hit" data-n="4" style="left: 70.5%; top: 91.9%; width: 9.4%; height: 5.8%;"></span>
+          </div>
+        </div>
+      </section>
+
+      <section id="material-3">
+        <p class="section-name">Slides and minutes · Step 3</p>
+        <h1>Write the minutes</h1>
+        <div class="cols-2" style="grid-template-columns: 1fr 440px; align-items: start;">
+          <figure class="anno" style="--ar: 1.5876;">
+            <img src="../img/tutorial/meeting-12-minutes-editor.jpg" alt="Minutes editor">
+          <span class="hit" data-n="1" style="left: 13.7%; top: 14.6%; width: 72.6%; height: 10.3%;"></span>
+          <span class="hit" data-n="2" style="left: 13.7%; top: 24.9%; width: 72.6%; height: 7.8%;"></span>
+          <span class="hit" data-n="3" style="left: 74.7%; top: 88.6%; width: 5.7%; height: 4.7%;"></span>
+          </figure>
+          <div>
+            <ol class="legend">
+              <li data-n="1">Formatting: lists, tables, links, images</li>
+              <li data-n="2">Write while the meeting runs</li>
+              <li data-n="3"><span class="ui">Save</span>. The dialog stays open, so you can save often.</li>
+            </ol>
+            <a class="backlink" href="#/flow-material">↑ back to the flow</a>
+          </div>
+        </div>
+      </section>
+
+      <section id="material-4">
+        <p class="section-name">Slides and minutes · Step 4</p>
+        <h1>Everything in one place</h1>
+        <div class="cols-2" style="grid-template-columns: 1fr 440px; align-items: start;">
+          <figure class="anno" style="--ar: 1.5876;">
+            <img src="../img/tutorial/meeting-13-minutes-shown.png" alt="Meeting with slides and minutes">
+          <span class="hit" data-n="1" style="left: 23.2%; top: 41.0%; width: 11.0%; height: 4.0%;"></span>
+          <span class="hit" data-n="2" style="left: 77.4%; top: 34.9%; width: 2.6%; height: 4.1%;"></span>
+          <span class="hit" data-n="3" style="left: 23.1%; top: 45.3%; width: 61.0%; height: 11.6%;"></span>
+          </figure>
+          <div>
+            <ol class="legend">
+              <li data-n="1">Slides under the item: one click opens them</li>
+              <li data-n="2"><span class="ui">≡</span> shows or hides the minutes</li>
+              <li data-n="3">Minutes, with author and time</li>
+            </ol>
+            <a class="backlink" href="#/flow-material">↑ back to the flow</a>
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <!-- ==================================================================
+         Flow 4: next week and access   (↓ backups)
+         ================================================================== -->
+    <section>
+      <section id="flow-repeat">
+        <p class="section-name">First meeting · 4 of 4</p>
+        <h1>Next week, and who can see it</h1>
+        <div class="flow">
+          <a class="step fragment" data-fragment-index="1" href="#/repeat-1">
+            <span class="n">1</span><b>Clone Event</b><small>meeting menu ✎▾</small></a>
+          <div class="arrow fragment" data-fragment-index="2">→</div>
+          <a class="step fragment" data-fragment-index="2" href="#/repeat-2">
+            <span class="n">2</span><b>What to copy</b><small>agenda yes, minutes no</small></a>
+          <div class="arrow fragment" data-fragment-index="3">→</div>
+          <a class="step fragment" data-fragment-index="3" href="#/repeat-3">
+            <span class="n">3</span><b>How often</b><small>every week, n times</small></a>
+          <div class="arrow fragment" data-fragment-index="4">→</div>
+          <a class="step fragment" data-fragment-index="4" href="#/repeat-5">
+            <span class="n">4</span><b>Protection</b><small>who sees, who edits</small></a>
+        </div>
+        <div class="r-stack detail-stack">
+          <p class="intro fragment fade-out" data-fragment-index="1">A weekly series is one meeting, cloned: same agenda, new date.</p>
+          <div class="detail fragment current-visible" style="--tip: 173px;" data-fragment-index="1">
+            <div class="bubble">
+              <p>Meeting menu <span class="ui">✎ ▾</span> (top right) ▸ <span class="ui">Clone Event</span>.</p>
+              <p>Choose <span class="ui">Clone with fixed Interval</span>, then <span class="ui">Next</span>.</p>
+              <a class="more" href="#/repeat-1">↓ screenshot</a>
+            </div>
+            <img class="thumb" src="../img/tutorial/meeting-14-event-menu.png" alt="">
+          </div>
+          <div class="detail fragment current-visible" style="--pl: 349px; --tip: 262px;" data-fragment-index="2">
+            <div class="bubble">
+              <p>The defaults copy the <strong>timetable</strong>, room and protection, but not materials or minutes.</p>
+              <a class="more" href="#/repeat-2">↓ screenshot</a>
+            </div>
+            <img class="thumb" src="../img/tutorial/meeting-15-clone-contents.png" alt="">
+          </div>
+          <div class="detail flip fragment current-visible" style="--tw: 743px; --tip: 262px;" data-fragment-index="3">
+            <div class="bubble">
+              <p><span class="ui">Every 1 Weeks</span>, a start date, and how many. Then <span class="ui">Clone</span>.</p>
+              <p>Edit each clone's title if it has a week number.</p>
+              <a class="more" href="#/repeat-3">↓ screenshots</a>
+            </div>
+            <img class="thumb" src="../img/tutorial/meeting-16-clone-dates.png" alt="">
+          </div>
+          <div class="detail flip fragment current-visible" style="--tip: 351px;" data-fragment-index="4">
+            <div class="bubble">
+              <p>Management ▸ <span class="ui">Protection</span>: add co-organisers as managers,
+                 or set <span class="ui">Protected</span> and list who may see it.</p>
+              <a class="more" href="#/repeat-5">↓ screenshot</a>
+            </div>
+            <img class="thumb" src="../img/tutorial/meeting-18-protection.png" alt="">
+          </div>
+        </div>
+      </section>
+
+      <section id="repeat-1">
+        <p class="section-name">Next week · Step 1</p>
+        <h1>Meeting menu ▸ Clone Event</h1>
+        <figure class="anno" style="--ar: 3.1828; display: block; margin: 0 auto;">
+          <img src="../img/tutorial/meeting-14-event-menu.png" alt="Meeting edit menu">
+          <span class="hit" data-n="1" style="left: 80.5%; top: 7.5%; width: 4.7%; height: 9.7%;"></span>
+          <span class="ring" style="left: 80.5%; top: 15.5%; width: 12%; height: 39%;"></span>
+        </figure>
+        <div style="display: flex; gap: 50px; justify-content: center; margin-top: 24px; font-size: 26px;">
+          <span><b style="color: var(--kth-brick);">1</b> <span class="ui">✎ ▾</span></span>
+          <span>then <span class="ui">Clone Event</span></span>
+          <span class="muted">Also here: <span class="ui">Add minutes</span> for the whole meeting,
+            <span class="ui">Compile Minutes</span> to gather the item minutes</span>
+          <a class="backlink" style="margin: 0;" href="#/flow-repeat">↑ back</a>
+        </div>
+      </section>
+
+      <section id="repeat-2">
+        <p class="section-name">Next week · Step 2</p>
+        <h1>What gets copied</h1>
+        <div class="cols-2" style="grid-template-columns: 1fr 440px; align-items: start;">
+          <figure class="anno tall" style="--ar: 1.0064;">
+            <img src="../img/tutorial/meeting-15-clone-contents.png" alt="Clone: what should be cloned">
+          <span class="hit" data-n="1" style="left: 3.3%; top: 39.6%; width: 16.3%; height: 6.7%;"></span>
+          <span class="hit" data-n="2" style="left: 3.3%; top: 54.5%; width: 19.5%; height: 6.7%;"></span>
+          <span class="hit" data-n="3" style="left: 85.1%; top: 90.9%; width: 13.0%; height: 6.4%;"></span>
+          </figure>
+          <div>
+            <ol class="legend">
+              <li data-n="1">Materials and minutes: off. Each week starts empty.</li>
+              <li data-n="2">Timetable, venue and protection: copied</li>
+              <li data-n="3"><span class="ui">Next</span>, keep the category, <span class="ui">Next</span></li>
+            </ol>
+            <a class="backlink" href="#/flow-repeat">↑ back to the flow</a>
+          </div>
+        </div>
+      </section>
+
+      <section id="repeat-3">
+        <p class="section-name">Next week · Step 3</p>
+        <h1>Every week, two more times</h1>
+        <div class="cols-2" style="grid-template-columns: 1fr 440px; align-items: start;">
+          <figure class="anno tall" style="--ar: 1.0064;">
+            <img src="../img/tutorial/meeting-16-clone-dates.png" alt="Clone: dates">
+          <span class="hit" data-n="1" style="left: 22.8%; top: 30.5%; width: 27.9%; height: 6.4%;"></span>
+          <span class="hit" data-n="2" style="left: 22.8%; top: 38.0%; width: 41.4%; height: 6.4%;"></span>
+          <span class="hit" data-n="3" style="left: 22.8%; top: 54.2%; width: 13.9%; height: 6.4%;"></span>
+          <span class="hit" data-n="4" style="left: 84.2%; top: 90.9%; width: 13.9%; height: 6.4%;"></span>
+          </figure>
+          <div>
+            <ol class="legend">
+              <li data-n="1">Interval: <span class="ui">1</span> <span class="ui">Weeks</span></li>
+              <li data-n="2">First new date (suggested for you)</li>
+              <li data-n="3">How many, or <em>until</em> a date</li>
+              <li data-n="4"><span class="ui">Clone</span></li>
+            </ol>
+            <a class="backlink" href="#/flow-repeat">↑ back to the flow</a>
+          </div>
+        </div>
+      </section>
+
+      <section id="repeat-4">
+        <p class="section-name">Next week · Result</p>
+        <h1>The series in the category</h1>
+        <figure class="anno" style="--ar: 2.6519; display: block; margin: 0 auto;">
+          <img src="../img/tutorial/meeting-17-clones.png" alt="Category with three cloned meetings">
+          <span class="ring" style="left: 12%; top: 74%; width: 25%; height: 23%;"></span>
+        </figure>
+        <p class="shot-cap" style="text-align: center;">The clones keep the title: here all three say “week 49”.
+          Leave the week number out of the title, or edit each clone.
+          <a href="#/flow-repeat">↑ back to the flow</a></p>
+      </section>
+
+      <section id="repeat-5">
+        <p class="section-name">Who can see it</p>
+        <h1>Protection</h1>
+        <div class="cols-2" style="grid-template-columns: 1fr 440px; align-items: start;">
+          <figure class="anno" style="--ar: 1.5876;">
+            <img src="../img/tutorial/meeting-18-protection.png" alt="Event protection page">
+          <span class="hit" data-n="1" style="left: 1.9%; top: 35.5%; width: 14.4%; height: 4.7%;"></span>
+          <span class="hit" data-n="2" style="left: 18.7%; top: 53.6%; width: 17.9%; height: 4.3%;"></span>
+          <span class="hit" data-n="3" style="left: 29.8%; top: 61.4%; width: 16.4%; height: 4.1%;"></span>
+          </figure>
+          <div>
+            <ol class="legend">
+              <li data-n="1"><span class="ui">Protection</span> in the left menu</li>
+              <li data-n="2">Add a <span class="ui">User</span> or <span class="ui">Group</span>, with <em>manage</em> or <em>access</em> rights</li>
+              <li data-n="3"><span class="ui">Public</span> / <span class="ui">Inheriting</span> / <span class="ui">Protected</span>; the box below says what it means here</li>
+            </ol>
+            <a class="backlink" href="#/flow-repeat">↑ back to the flow</a>
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <!-- ==================================================================
+         Divider: lectures and conferences
+         ================================================================== -->
+    <section data-state="divider" data-transition="convex"
+             data-pattern="full" data-pattern-color="skyblue">
+      <p class="eyebrow">Part 3 of 3</p>
+      <h2>Lectures and conferences</h2>
+      <p class="lead">Same menu, same steps, different features.</p>
+    </section>
+
+    <!-- Flow: lecture -->
+    <section>
+      <section id="flow-lecture">
+        <p class="section-name">Lecture</p>
+        <h1>A colloquium in three steps</h1>
+        <div class="flow">
+          <a class="step fragment" data-fragment-index="1" href="#/lecture-1">
+            <span class="n">1</span><b>Create event ▸ Lecture</b><small>on the category page</small></a>
+          <div class="arrow fragment" data-fragment-index="2">→</div>
+          <a class="step fragment" data-fragment-index="2" href="#/lecture-1">
+            <span class="n">2</span><b>Speaker in the form</b><small>search or enter manually</small></a>
+          <div class="arrow fragment" data-fragment-index="3">→</div>
+          <a class="step fragment" data-fragment-index="3" href="#/lecture-2">
+            <span class="n">3</span><b>Abstract &amp; slides</b><small>description, material editor</small></a>
+        </div>
+        <div class="r-stack detail-stack">
+          <p class="intro fragment fade-out" data-fragment-index="1">A lecture is one talk, without an agenda.</p>
+          <div class="detail fragment current-visible" style="--tip: 246px;" data-fragment-index="1">
+            <div class="bubble">
+              <p><span class="ui">Create event ▾</span> ▸ <span class="ui">Lecture</span>. Date, start time and <strong>length in minutes</strong>.</p>
+              <p><span class="ui">Add occurrence</span> for the same talk on more days.</p>
+              <a class="more" href="#/lecture-1">↓ screenshot</a>
+            </div>
+            <img class="thumb" src="../img/tutorial/lecture-01-create.png" alt="">
+          </div>
+          <div class="detail flip fragment current-visible" style="--tw: 524px; --tip: 262px;" data-fragment-index="2">
+            <div class="bubble">
+              <p>The speaker is part of the create form: <span class="ui">Add from search</span> or <span class="ui">Enter manually</span>.</p>
+              <a class="more" href="#/lecture-1">↓ screenshot</a>
+            </div>
+            <img class="thumb" src="../img/tutorial/lecture-01-create.png" alt="">
+          </div>
+          <div class="detail flip fragment current-visible" style="--tip: 278px;" data-fragment-index="3">
+            <div class="bubble">
+              <p>Abstract: <span class="ui">Settings</span> ▸ pencil ▸ <strong>Description</strong>.</p>
+              <p>Slides: <span class="ui">✎ ▾</span> ▸ <span class="ui">Material editor</span>, as for a meeting.</p>
+              <a class="more" href="#/lecture-2">↓ screenshot</a>
+            </div>
+            <img class="thumb" src="../img/tutorial/lecture-02-display.png" alt="">
+          </div>
+        </div>
+      </section>
+
+      <section id="lecture-1">
+        <p class="section-name">Lecture · Create</p>
+        <h1>Create new lecture</h1>
+        <div class="cols-2" style="grid-template-columns: 1fr 440px; align-items: start;">
+          <figure class="anno" style="--ar: 1.2017;">
+            <img src="../img/tutorial/lecture-01-create.png" alt="Create new lecture dialog">
+          <span class="hit" data-n="1" style="left: 22.3%; top: 21.5%; width: 66.5%; height: 5.8%;"></span>
+          <span class="hit" data-n="2" style="left: 22.3%; top: 28.2%; width: 49.4%; height: 5.8%;"></span>
+          <span class="hit" data-n="3" style="left: 22.3%; top: 52.3%; width: 66.5%; height: 15.6%;"></span>
+          <span class="hit" data-n="4" style="left: 22.3%; top: 91.2%; width: 13.9%; height: 6.2%;"></span>
+          </figure>
+          <div>
+            <ol class="legend">
+              <li data-n="1">Title</li>
+              <li data-n="2">Date, start time, length (minutes)</li>
+              <li data-n="3">Speaker: search or enter manually</li>
+              <li data-n="4"><span class="ui">Create event</span></li>
+            </ol>
+            <a class="backlink" href="#/flow-lecture">↑ back to the flow</a>
+          </div>
+        </div>
+      </section>
+
+      <section id="lecture-2">
+        <p class="section-name">Lecture · Result</p>
+        <h1>The lecture page</h1>
+        <div class="crop" style="aspect-ratio: 1050 / 310; width: 1696px; overflow: visible; border: 0; box-shadow: none;">
+          <div style="position: absolute; inset: 0; overflow: hidden; border: 1px solid #d0d0d0; border-radius: 6px; box-shadow: 0 6px 20px rgba(0,0,0,0.12);">
+            <img src="../img/tutorial/lecture-02-display.png" alt="Lecture display page"
+                 style="width: 137.1%; margin-left: -19.05%; margin-top: -5.24%;">
+          </div>
+          <span class="tag" style="left: 45%; top: 39.4%;">Speaker</span>
+          <span class="tag" style="left: 86%; top: 66%;">Abstract = description</span>
+          <span class="tag" style="left: 43%; top: 88%;">Slides</span>
+        </div>
+        <p class="shot-cap" style="text-align: center;"><a href="#/flow-lecture">↑ back to the flow</a></p>
+      </section>
+    </section>
+
+    <!-- Flow: conference -->
+    <section>
+      <section id="flow-conf">
+        <p class="section-name">Conference</p>
+        <h1>A workshop: the main parts</h1>
+        <div class="flow">
+          <a class="step fragment" data-fragment-index="1" href="#/conf-1">
+            <span class="n">1</span><b>Create event ▸ Conference</b><small>several days</small></a>
+          <div class="arrow fragment" data-fragment-index="2">→</div>
+          <a class="step fragment" data-fragment-index="2" href="#/conf-2">
+            <span class="n">2</span><b>Pick modules</b><small>timetable, registration, abstracts</small></a>
+          <div class="arrow fragment" data-fragment-index="3">→</div>
+          <a class="step fragment" data-fragment-index="3" href="#/conf-3">
+            <span class="n">3</span><b>Registration</b><small>create form, open it</small></a>
+          <div class="arrow fragment" data-fragment-index="4">→</div>
+          <a class="step fragment" data-fragment-index="4" href="#/conf-4">
+            <span class="n">4</span><b>Public site</b><small>with its own menu</small></a>
+        </div>
+        <div class="r-stack detail-stack">
+          <p class="intro fragment fade-out" data-fragment-index="1">A conference has more modules than a meeting. Use only the ones you need.</p>
+          <div class="detail fragment current-visible" style="--tip: 173px;" data-fragment-index="1">
+            <div class="bubble">
+              <p><span class="ui">Create event ▾</span> ▸ <span class="ui">Conference</span>: title, first and last day, venue.</p>
+              <p>Tip: if a typed time doesn't stick, pick it from the time list.</p>
+              <a class="more" href="#/conf-1">↓ screenshot</a>
+            </div>
+            <img class="thumb" src="../img/tutorial/conf-01-create.png" alt="">
+          </div>
+          <div class="detail fragment current-visible" style="--pl: 349px; --tip: 262px;" data-fragment-index="2">
+            <div class="bubble">
+              <p>The left menu has <span class="ui">Timetable</span>, <span class="ui">Registration</span>,
+                 <span class="ui">Contributions</span> and, under Workflows, <span class="ui">Call for Abstracts</span>.</p>
+              <a class="more" href="#/conf-2">↓ screenshot</a>
+            </div>
+            <img class="thumb" src="../img/tutorial/conf-02-menu.png" alt="">
+          </div>
+          <div class="detail flip fragment current-visible" style="--tw: 743px; --tip: 262px;" data-fragment-index="3">
+            <div class="bubble">
+              <p><span class="ui">Registration</span> ▸ <span class="ui">Create form</span>, give it a title, then <span class="ui">Start now</span>.</p>
+              <p><span class="ui">Registration Form ▸ Configure</span> adds your own questions.</p>
+              <a class="more" href="#/conf-3">↓ screenshot</a>
+            </div>
+            <img class="thumb" src="../img/tutorial/conf-03-registration.png" alt="">
+          </div>
+          <div class="detail flip fragment current-visible" style="--tip: 351px;" data-fragment-index="4">
+            <div class="bubble">
+              <p>The public page gets a menu and a <span class="ui">Register now</span> button.</p>
+              <a class="more" href="#/conf-4">↓ screenshot</a>
+            </div>
+            <img class="thumb" src="../img/tutorial/conf-04-display.png" alt="">
+          </div>
+        </div>
+      </section>
+
+      <section id="conf-1">
+        <p class="section-name">Conference · Create</p>
+        <h1>Create new conference</h1>
+        <div class="cols-2" style="grid-template-columns: 1fr 440px; align-items: start;">
+          <figure class="anno" style="--ar: 1.4454;">
+            <img src="../img/tutorial/conf-01-create.png" alt="Create new conference dialog">
+          <span class="hit" data-n="1" style="left: 22.3%; top: 26.2%; width: 66.5%; height: 6.9%;"></span>
+          <span class="hit" data-n="2" style="left: 22.3%; top: 34.3%; width: 34.9%; height: 15.6%;"></span>
+          <span class="hit" data-n="3" style="left: 22.3%; top: 59.8%; width: 66.5%; height: 6.9%;"></span>
+          <span class="hit" data-n="4" style="left: 22.3%; top: 89.1%; width: 13.9%; height: 7.6%;"></span>
+          </figure>
+          <div>
+            <ol class="legend">
+              <li data-n="1">Title</li>
+              <li data-n="2">First and last day, daily start and end</li>
+              <li data-n="3">Venue and room</li>
+              <li data-n="4"><span class="ui">Create event</span></li>
+            </ol>
+            <div class="notebox" style="font-size: 24px;">If a typed time jumps back, open the time field and click the hour in the list.</div>
+            <a class="backlink" href="#/flow-conf">↑ back to the flow</a>
+          </div>
+        </div>
+      </section>
+
+      <section id="conf-2">
+        <p class="section-name">Conference · Modules</p>
+        <h1>What a conference adds</h1>
+        <div class="cols-2" style="grid-template-columns: 1fr 440px; align-items: start;">
+          <figure class="anno" style="--ar: 1.4973;">
+            <img src="../img/tutorial/conf-02-menu.png" alt="Conference management menu">
+          <span class="hit" data-n="1" style="left: 2.4%; top: 15.8%; width: 18.7%; height: 5.8%;"></span>
+          <span class="hit" data-n="2" style="left: 2.4%; top: 40.0%; width: 18.7%; height: 4.5%;"></span>
+          <span class="hit" data-n="3" style="left: 2.4%; top: 50.9%; width: 18.7%; height: 4.5%;"></span>
+          <span class="hit" data-n="4" style="left: 2.4%; top: 74.6%; width: 18.7%; height: 4.5%;"></span>
+          </figure>
+          <div>
+            <ol class="legend">
+              <li data-n="1"><span class="ui">Timetable</span>: sessions and talks over several days</li>
+              <li data-n="2"><span class="ui">Contributions</span>: the list of talks</li>
+              <li data-n="3"><span class="ui">Registration</span>: forms, participant list</li>
+              <li data-n="4"><span class="ui">Call for Abstracts</span>: submissions and review</li>
+            </ol>
+            <a class="backlink" href="#/flow-conf">↑ back to the flow</a>
+          </div>
+        </div>
+      </section>
+
+      <section id="conf-3">
+        <p class="section-name">Conference · Registration</p>
+        <h1>A registration form</h1>
+        <div class="cols-2" style="grid-template-columns: 1fr 440px; align-items: start;">
+          <figure class="anno" style="--ar: 1.4973;">
+            <img src="../img/tutorial/conf-03-registration.png" alt="Manage registration form">
+          <span class="hit" data-n="1" style="left: 87.2%; top: 33.1%; width: 7.9%; height: 4.9%;"></span>
+          <span class="hit" data-n="2" style="left: 84.9%; top: 49.5%; width: 10.1%; height: 4.9%;"></span>
+          <span class="hit" data-n="3" style="left: 86.1%; top: 65.8%; width: 8.9%; height: 4.9%;"></span>
+          </figure>
+          <div>
+            <ol class="legend">
+              <li data-n="1"><span class="ui">Start now</span> opens registration, or <span class="ui">Schedule</span> it</li>
+              <li data-n="2"><span class="ui">Configure</span> the form: add your own questions</li>
+              <li data-n="3"><span class="ui">Manage</span> the list of registrations</li>
+            </ol>
+            <a class="backlink" href="#/flow-conf">↑ back to the flow</a>
+          </div>
+        </div>
+      </section>
+
+      <section id="conf-4">
+        <p class="section-name">Conference · Result</p>
+        <h1>The conference site</h1>
+        <div class="cols-2" style="grid-template-columns: 1fr 440px; align-items: start;">
+          <figure class="anno" style="--ar: 2.2326;">
+            <div style="aspect-ratio: 960 / 430; overflow: hidden; border: 1px solid #d0d0d0; border-radius: 6px; box-shadow: 0 6px 20px rgba(0,0,0,0.12);">
+              <img src="../img/tutorial/conf-04-display.png" alt="Conference overview page"
+                   style="width: 143.54%; margin-left: -20.83%; margin-top: -5.21%; border: 0; border-radius: 0; box-shadow: none;">
+            </div>
+            <span class="hit" data-n="1" style="left: 3.2%; top: 41.4%; width: 20.7%; height: 24.2%;"></span>
+            <span class="hit" data-n="2" style="left: 85.6%; top: 86.3%; width: 12.0%; height: 7.9%;"></span>
+          </figure>
+          <div>
+            <ol class="legend">
+              <li data-n="1">Menu: grows as you enable modules</li>
+              <li data-n="2"><span class="ui">Register now</span></li>
+            </ol>
+            <p class="muted" style="font-size: 24px;">Banner, logo and colours: <span class="ui">Customisation</span> in the management menu.</p>
+            <a class="backlink" href="#/flow-conf">↑ back to the flow</a>
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <!-- ==================================================================
+         Tips and help
+         ================================================================== -->
+    <section>
+      <p class="section-name">Good to know</p>
+      <h1>Tips</h1>
+      <div class="cols-2">
+        <ul>
+          <li><span class="kthhl">Series:</span> create one meeting, then <span class="ui">Clone Event</span> every week</li>
+          <li><span class="kthhl">Titles:</span> leave the date out, since the clones copy it</li>
+          <li><span class="kthhl">Guests</span> without an account: <span class="ui">Enter manually</span></li>
+        </ul>
+        <ul>
+          <li><span class="kthhl">Video link:</span> in the meeting description</li>
+          <li><span class="kthhl">Calendar:</span> the calendar icon on an event or category page exports it</li>
+          <li><span class="kthhl">Sensitive minutes or files:</span> protect the event, or the single file</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <p class="section-name">Help</p>
+      <h1>Try it, and where to read more</h1>
+      <div class="cols-2">
+        <div class="kthbox">
+          <p><strong>Practise in the Sandbox</strong></p>
+          <p>The pilot has a <em>Sandbox</em> category. Create a meeting there and try every step in this deck.
+             Nothing there is used for real.</p>
+        </div>
+        <div class="kthbox">
+          <p><strong>Indico's own guide</strong></p>
+          <p><a href="https://learn.getindico.io/">learn.getindico.io</a>: user guides for meetings,
+             conferences, registration and abstracts.</p>
+        </div>
+      </div>
+      <p class="muted" style="font-size: 24px; margin-top: 30px;">Screenshots from the KTH pilot (Indico v3.3.14) with made-up people;
+        e-mail addresses removed. Public examples: ESA, ETH Zürich (indico.global), European XFEL.</p>
+    </section>
+
+    <!-- ==================================================================
+         Closing
+         ================================================================== -->
+    <section data-state="closing" data-transition="zoom"
+             data-pattern="tl, bl mirror-x" data-pattern-color="white">
+      <h2>Make your first meeting</h2>
+      <p class="lead">Pilot: <a href="https://indico.physics.kth.se">indico.physics.kth.se</a>&nbsp;— <a href="mailto:chohm@kth.se">chohm@kth.se</a></p>
+    </section>
+
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.2.1/dist/reveal.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.2.1/plugin/highlight/highlight.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.2.1/plugin/notes/notes.js"></script>
+
+<script src="../../kth-doc-templates/reveal/kth-reveal.js"></script>
+
+<script>
+  // print-pdf without &steps: every fragment is shown at once, so hide the per-step pop-ups.
+  if (/[?&]print-pdf\b/.test(location.search) && !/[?&]steps\b/.test(location.search)) {
+    document.documentElement.classList.add('print-all');
+  }
+  Reveal.initialize({
+    width: 1920,
+    height: 1080,
+    margin: 0.0,
+    center: false,
+    controls: true,
+    controlsTutorial: false,
+    progress: false,
+    history: true,
+    hash: true,
+    slideNumber: false,
+    transition: 'slide',
+    transitionSpeed: 'default',
+    backgroundTransition: 'fade',
+    // ?print-pdf: one page per slide, all fragments shown.
+    // ?print-pdf&steps: one page per fragment step.
+    pdfSeparateFragments: /[?&]steps\b/.test(location.search),
+    pdfMaxPagesPerSlide: 1,
+    plugins: [ RevealHighlight, RevealNotes ],
+  });
+</script>
+
+</body>
+</html>
