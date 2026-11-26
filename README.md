@@ -28,6 +28,9 @@ decks take it from the submodule), and any personal data. CSV files and Gruppweb
 Not covered by either licence:
 - the KTH name, logo and visual identity, which are KTH's trademarks;
 - the `kth-doc-templates` submodule, which has its own licence;
-- Indico itself (MIT, CERN), which shows in the screenshots.
+- Indico itself (MIT, CERN), which shows in the screenshots;
+- the screenshots of public events in `slides/img/tutorial/public-*.png` (ESA, ETH Zürich on
+  indico.global, European XFEL). The content belongs to those organisers; the screenshots are
+  included with credit and a link on each slide, to illustrate how Indico is used.
 
 The slides are published at <https://cohm.github.io/kth-indico/>.
