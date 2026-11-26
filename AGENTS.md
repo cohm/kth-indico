@@ -20,6 +20,7 @@ A pilot runs at `https://indico.physics.kth.se`. The goal is a central KTH servi
 | `accounts/make-accounts.py` | local accounts from a CSV plus a local group |
 | `branding/00-kth.css` | KTH colours, Figtree, header logo for Indico's pages |
 | `docs/` | privacy policy template for an Indico service (`privacy-policy.sv.md`, `.en.md`), placeholders in `{{…}}` |
+| `categories/` | proposed category tree (`kth-category-tree.md`, the file to edit), `tree.py` (check, export to `slides/indico-kth-sv/category-tree.js`), `make-categories.py` (create in Indico), `fetch-directory.py` (units and codes from KTH's public directory) |
 | `slides/` | reveal.js decks; shared screenshots in `slides/img/` |
 | `kth-doc-templates/` | git submodule ([cohm/kth-doc-templates](https://github.com/cohm/kth-doc-templates)): the KTH reveal theme and the KTH logo, used by the decks |
 

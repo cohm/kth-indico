@@ -47,6 +47,42 @@
     .reveal .arch .box.ext  { border-style: dashed; }
     .reveal .arch .box b { display: block; color: var(--kth-navy); }
     .reveal .arch .box small { color: var(--kth-gray-dark); }
+
+    /* Category tree (11b): nested <details>, data from category-tree.js */
+    .reveal .ktree { height: 760px; overflow-y: auto; font-size: 0.74em; line-height: 1.4;
+                     border: 1px solid var(--kth-gray-light); border-radius: 8px;
+                     background: var(--kth-white); padding: 0.5em 0.8em; }
+    .reveal .ktree details > div, .reveal .ktree details > details { margin-left: 1.4em; }
+    .reveal .ktree summary { cursor: pointer; padding: 0.12em 0 0.12em 1em; text-indent: -1em; list-style: none; }
+    .reveal .ktree summary::-webkit-details-marker { display: none; }
+    .reveal .ktree summary::before { content: "▸"; display: inline-block; width: 1em; text-indent: 0; text-align: center; color: var(--kth-blue);
+                                     transition: transform 0.15s; }
+    .reveal .ktree details[open] > summary::before { transform: rotate(90deg); }
+    .reveal .ktree summary:hover { background: var(--kth-lightblue); }
+    .reveal .ktree .leaf { padding: 0.12em 0 0.12em 2em; text-indent: -1em; }
+    .reveal .ktree .code { display: inline-block; min-width: 3.4em; margin-right: 0.4em; padding: 0 0.3em;
+                           border-radius: 4px; background: var(--kth-navy); color: var(--kth-white);
+                           font-family: ui-monospace, Menlo, monospace; font-size: 0.85em; text-align: center; }
+    .reveal .ktree .alt { color: var(--kth-gray-dark); font-style: italic; margin-left: 0.5em; font-size: 0.9em; }
+    .reveal .ktree .cnt { color: var(--kth-gray-dark); font-size: 0.8em; margin-left: 0.5em; }
+    .reveal .ktree .note { color: var(--kth-brick-dark); margin-left: 0.4em; cursor: help; }
+    .reveal .ktree-side .ktree-btn { font: inherit; font-size: 0.6em; padding: 0.25em 0.8em; margin: 0 0.4em 0.4em 0;
+                                     border: 2px solid var(--kth-blue); border-radius: 6px;
+                                     background: var(--kth-white); color: var(--kth-blue); cursor: pointer; }
+    .reveal .ktree-side .ktree-btn:hover { background: var(--kth-lightblue); }
+    .reveal .ktree-side .legend { font-size: 0.68em; }
+    .reveal .ktree-side .legend .code { display: inline-block; padding: 0 0.3em; border-radius: 4px;
+                                        background: var(--kth-navy); color: var(--kth-white);
+                                        font-family: ui-monospace, Menlo, monospace; font-size: 0.85em; }
+
+    /* Workflow row (11c) */
+    .reveal .wflow { display: flex; align-items: stretch; gap: 0.5em; margin: 0.6em 0 0.8em; font-size: 0.78em; }
+    .reveal .wflow .box { flex: 1; border: 2px solid var(--kth-blue); border-radius: 8px; padding: 0.45em 0.6em;
+                          background: var(--kth-white); }
+    .reveal .wflow .box.core { background: var(--kth-lightblue); }
+    .reveal .wflow .box b { display: block; color: var(--kth-navy); }
+    .reveal .wflow .box small { color: var(--kth-gray-dark); display: block; line-height: 1.3; }
+    .reveal .wflow .arr { align-self: center; color: var(--kth-blue); font-size: 1.4em; }
   </style>
 </head>
 <body>
@@ -359,6 +395,99 @@
       </div>
     </section>
 
+
+    <!-- ==================================================================
+         11b. Kategoriträd — förslag (data: category-tree.js, from categories/kth-category-tree.md)
+         ================================================================== -->
+    <section>
+      <p class="section-name">Design · Organisation</p>
+      <h1>Förslag: kategoriträd för hela KTH</h1>
+      <p class="statusline">Status: <span class="st st-todo">förslag</span> &nbsp;Klicka på en nivå för att öppna den.</p>
+
+      <div class="cols-2" style="grid-template-columns: 1fr 430px; align-items: start;">
+        <div class="ktree" id="ktree"></div>
+        <div class="ktree-side">
+          <button class="ktree-btn" data-ktree="1">Första nivån</button><button class="ktree-btn" data-ktree="2">Två nivåer</button><button class="ktree-btn" data-ktree="0">Fäll ihop</button>
+          <div class="legend">
+            <p id="ktree-stats" style="margin-top: 0.3em;"></p>
+            <ul>
+              <li><span class="code">SHR</span> KTH:s organisationskod: skola → institution → avdelning. Nyckeln mot grupper i UG.</li>
+              <li><span style="color: var(--kth-brick-dark);">⚑</span> öppen fråga, håll muspekaren över</li>
+              <li>Titlar på engelska, svenska i kursiv. Bara för referens.</li>
+              <li>Toppnivån skapas <span class="kthhl">skyddad</span>, resten ärver.</li>
+            </ul>
+            <p style="font-size: 0.85em; color: var(--kth-gray-dark);">Källor: KTH:s organisationssidor på intranätet och personalkatalogen (nov 2026). Listan: <code>categories/kth-category-tree.md</code></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================================================================
+         11c. Från lista till Indico
+         ================================================================== -->
+    <section>
+      <p class="section-name">Design · Organisation</p>
+      <h1>Från lista till Indico</h1>
+      <p class="statusline">Status: <span class="st st-todo">förslag</span> · skripten <span class="st st-plan">klara att testa</span></p>
+
+      <div class="wflow">
+        <div class="box core"><b>Trädet som lista</b><small>en Markdown-fil i repot: en rad per kategori, med kod och svenskt namn</small></div>
+        <div class="arr">→</div>
+        <div class="box"><b>Kontroll</b><small><code>tree.py</code>: dubbla koder, dubbla namn, indrag. Exporterar till den här presentationen</small></div>
+        <div class="arr">→</div>
+        <div class="box"><b>Skapa i Indico</b><small><code>make-categories.py</code>: torrkörning först, skapar bara det som saknas, ändrar inget befintligt</small></div>
+        <div class="arr">→</div>
+        <div class="box"><b>Kod → kategori</b><small>tabell på servern: <code>SHR</code> → kategori-id. Underlag för behörigheter från UG</small></div>
+      </div>
+
+      <div class="cols-2">
+        <div>
+          <h3>Varför en lista</h3>
+          <ul>
+            <li>Lätt att <span class="kthhl">diskutera och ändra</span>: varje ändring syns i versionshistoriken</li>
+            <li>Samma lista ger bilden här och kategorierna i Indico</li>
+            <li>Linjeorganisationen hämtas från <span class="kthhl">personalkatalogen</span> (bara enheter, inga personer) och kan jämföras när KTH omorganiserar</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Utöver linjen</h3>
+          <ul>
+            <li>Fakultetsrådet och skolornas fakultetsnämnder, med utskott</li>
+            <li>Utbildning: PriU-grupper, nätverk för programansvariga och studierektorer, Storträffar</li>
+            <li>Forskningscentrum och kompetenscentrum</li>
+            <li>Sandlåda att prova i</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================================================================
+         11d. Öppna frågor om trädet
+         ================================================================== -->
+    <section>
+      <p class="section-name">Design · Organisation</p>
+      <h1>Att bestämma om trädet</h1>
+      <div class="cols-2">
+        <div>
+          <ol>
+            <li><span class="kthhl">Språk:</span> engelska titlar med svenska för svenskspråkiga grupper, eller svenska rakt igenom?</li>
+            <li><span class="kthhl">Skolorna</span> direkt på toppnivån (KTH » SCI » Fysik » PAM), eller under en egen kategori?</li>
+            <li><span class="kthhl">Djup:</span> skapa alla avdelningar och enheter direkt, eller när någon behöver dem?</li>
+            <li><span class="kthhl">EECS</span> saknar institutionsnivå i katalogen. Lägga till den för hand?</li>
+          </ol>
+        </div>
+        <div>
+          <ol start="5">
+            <li><span class="kthhl">Gemensamma enheter</span> (verkstäder, ”gemensam verksamhet”): egna kategorier eller inte?</li>
+            <li><span class="kthhl">Utbildningsgrupperna:</span> egen toppkategori, eller under Grundutbildningsutskottet?</li>
+            <li><span class="kthhl">Centrum:</span> en lista, eller under värdskolan?</li>
+            <li><span class="kthhl">Vem förvaltar</span> varje del? Skolans kansli, institutionen, Verksamhetsstöd?</li>
+          </ol>
+        </div>
+      </div>
+      <div class="notebox" style="margin-top: 0.5em;">Utskott som hanterar anställningar och docentärenden förblir <strong>skyddade</strong> oavsett hur resten bestäms.</div>
+    </section>
+
     <!-- ==================================================================
          12. E-post & dataskydd
          ================================================================== -->
@@ -530,6 +659,43 @@
 <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.2.1/plugin/notes/notes.js"></script>
 
 <script src="../../kth-doc-templates/reveal/kth-reveal.js"></script>
+
+
+<script src="category-tree.js"></script>
+<script>
+  // Category tree slide (11b): build nested <details> from window.KTH_CATEGORY_TREE.
+  (function () {
+    const root = document.getElementById('ktree');
+    const data = window.KTH_CATEGORY_TREE;
+    if (!root || !data) return;
+    const el = (tag, cls, text) => { const e = document.createElement(tag);
+      if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+    const count = n => (n.k || []).reduce((s, c) => s + 1 + count(c), 0);
+    function label(n, into) {
+      if (n.c) into.append(el('span', 'code', n.c));
+      into.append(document.createTextNode(n.t));
+      if (n.a) into.append(el('span', 'alt', n.a));
+      if (n.k) into.append(el('span', 'cnt', '(' + count(n) + ')'));
+      if (n.n) { const m = el('span', 'note', '⚑'); m.title = n.n; into.append(m); }
+    }
+    function build(n, depth) {
+      if (!n.k) { const d = el('div', 'leaf'); label(n, d); return d; }
+      const d = el('details'); d.dataset.depth = depth;
+      const s = el('summary'); label(n, s); d.append(s);
+      n.k.forEach(c => d.append(build(c, depth + 1)));
+      return d;
+    }
+    data.forEach(n => root.append(build(n, 1)));
+    let total = 0, coded = 0;
+    (function walk(ns) { ns.forEach(n => { total++; if (n.c) coded++; if (n.k) walk(n.k); }); })(data);
+    const stats = document.getElementById('ktree-stats');
+    if (stats) stats.textContent = total + ' kategorier, varav ' + coded + ' med organisationskod.';
+    document.querySelectorAll('.ktree-btn').forEach(b => b.addEventListener('click', () => {
+      const lvl = +b.dataset.ktree;
+      root.querySelectorAll('details').forEach(d => { d.open = +d.dataset.depth < lvl; });
+    }));
+  })();
+</script>
 
 <script>
   Reveal.initialize({
